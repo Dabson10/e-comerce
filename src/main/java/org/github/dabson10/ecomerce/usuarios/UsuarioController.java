@@ -6,8 +6,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UsuarioController {
 
-    @GetMapping("/p")
-    public String saludo(){
-        return "Hola perro";
-    }
+
 }
