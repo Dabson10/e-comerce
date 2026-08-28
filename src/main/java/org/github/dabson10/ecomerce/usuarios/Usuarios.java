@@ -4,8 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.github.dabson10.ecomerce.enums.Rol_Usuario;
+import org.github.dabson10.ecomerce.ordenes.Ordenes;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,6 +19,7 @@ public class Usuarios {
     @NotBlank(message = "Ingrese un nombre.")
     private String nombre;
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     @NotNull(message = "Ingrese un rol de usuario valido.")
     private Rol_Usuario rol;
     @Column(nullable = false, length = 100, unique = true)
@@ -35,4 +38,6 @@ public class Usuarios {
     @Column(nullable = false)
     @NotNull(message = "Ingrese una fecha de actualizado.")
     private OffsetDateTime actualizado_en;
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    private List<Ordenes> ordenes;
 }
