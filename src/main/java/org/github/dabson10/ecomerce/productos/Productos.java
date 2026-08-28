@@ -1,13 +1,12 @@
 package org.github.dabson10.ecomerce.productos;
+
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.github.dabson10.ecomerce.categorias.Categorias;
 import org.github.dabson10.ecomerce.descuentos.Descuentos;
 import org.github.dabson10.ecomerce.detalle_ordenes.DetalleOrdenes;
 import org.github.dabson10.ecomerce.tiendas.Tiendas;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;

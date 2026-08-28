@@ -1,9 +1,9 @@
 package org.github.dabson10.ecomerce.detalle_ordenes;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import org.github.dabson10.ecomerce.ordenes.Ordenes;
 import org.github.dabson10.ecomerce.productos.Productos;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -14,14 +14,14 @@ public class DetalleOrdenes {
     private UUID ID;
     @Column(nullable = false)
     @Positive
-    private Integer cantidad;
+    private Short cantidad;
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precio_unitario;
     //Relación con producto y ordenes.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_orden")
+    @JoinColumn(name = "id_orden", nullable = false)
     private Ordenes orden;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_producto")
+    @JoinColumn(name = "id_producto", nullable = false)
     private Productos producto;
 }

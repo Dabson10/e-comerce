@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import org.github.dabson10.ecomerce.ordenes.Ordenes;
 import org.github.dabson10.ecomerce.productos.Productos;
 import org.github.dabson10.ecomerce.usuarios.Usuarios;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +30,8 @@ public class Tiendas {
     //Relación con usuarios
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", //Nombre de la columna en esta tabla.
-            referencedColumnName = "ID" )//Nombre de la ubicación en la otra tabla.
+            referencedColumnName = "ID",//Nombre de la ubicación en la otra tabla.
+            nullable = false)
     private Usuarios usuario;
     //Relacion 1:N con Ordenes
     @OneToMany(mappedBy = "tienda", fetch = FetchType.LAZY)

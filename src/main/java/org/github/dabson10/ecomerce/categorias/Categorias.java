@@ -1,7 +1,7 @@
 package org.github.dabson10.ecomerce.categorias;
+
 import jakarta.persistence.*;
 import org.github.dabson10.ecomerce.productos.Productos;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
