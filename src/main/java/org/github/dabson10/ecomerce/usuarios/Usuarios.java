@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.github.dabson10.ecomerce.enums.Rol_Usuario;
 import org.github.dabson10.ecomerce.ordenes.Ordenes;
 import java.time.OffsetDateTime;
@@ -11,6 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class Usuarios {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,13 +36,10 @@ public class Usuarios {
     @NotBlank(message = "Ingrese una clave.")
     private String clave;
     @Column(nullable = false)
-    @NotNull(message = "Ingrese un estado.")
     private Boolean activo;
     @Column(nullable = false)
-    @NotNull(message = "Ingrese una fecha de creación.")
     private OffsetDateTime creado_en;
     @Column(nullable = false)
-    @NotNull(message = "Ingrese una fecha de actualizado.")
     private OffsetDateTime actualizado_en;
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Ordenes> ordenes;
