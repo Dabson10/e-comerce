@@ -20,7 +20,15 @@ public class UsuarioController {
     public ResponseEntity<UsuarioSimpleDTO> crearUsuario(
             @Valid @RequestBody UsuarioCreateDTO usuario
     ){
-        usuSe.CrearUsuario(usuario);
-        return new ResponseEntity<>(usuario, HttpStatus.CREATED);
+        UsuarioSimpleDTO usuDTO = usuSe.CrearUsuario(usuario);
+        return new ResponseEntity<>(usuDTO, HttpStatus.CREATED);
+    }
+
+    @GetMapping("reed")
+    public ResponseEntity<?> mostrarUsuario(
+            @RequestParam(name = "email") String correo
+    ){
+        usuSe.mostrarUsuario(correo);
+        return new ResponseEntity<>("p", HttpStatus.OK);
     }
 }

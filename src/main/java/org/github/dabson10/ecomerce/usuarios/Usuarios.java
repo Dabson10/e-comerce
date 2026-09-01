@@ -3,13 +3,15 @@ package org.github.dabson10.ecomerce.usuarios;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.github.dabson10.ecomerce.enums.Rol_Usuario;
 import org.github.dabson10.ecomerce.ordenes.Ordenes;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +28,7 @@ public class Usuarios {
     private String nombre;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Ingrese un rol de usuario valido.")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private Rol_Usuario rol;
     @Column(nullable = false, length = 100, unique = true)
     @NotBlank(message = "Ingrese un corre.")
@@ -43,4 +45,11 @@ public class Usuarios {
     private OffsetDateTime actualizado_en;
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Ordenes> ordenes;
+
+    @PrePersist
+    public void crearUsuario(){
+        this.activo = true;
+        this.creado_en = OffsetDateTime.now();
+        this.actualizado_en = OffsetDateTime.now();
+    }
 }
