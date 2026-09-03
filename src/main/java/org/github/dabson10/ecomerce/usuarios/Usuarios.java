@@ -46,10 +46,25 @@ public class Usuarios {
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Ordenes> ordenes;
 
+    /**
+     * Esta función tipo {@code @PrePersist}, se ejecuta un poco antes de
+     * realizar un INSERT o save() en base de datos.
+     */
     @PrePersist
     public void crearUsuario(){
         this.activo = true;
         this.creado_en = OffsetDateTime.now();
+        this.actualizado_en = OffsetDateTime.now();
+    }
+
+    /**
+     * Esta función tipo {@code @PreUpdate}, se ejecuta un poco antes de
+     * realizar un UPDATE o save en base de datos, no pensar que la función
+     * save solo sirve para guardar, esta se suele utilizar tambien para
+     * actualizar.
+     */
+    @PreUpdate
+    public void actualizarDatos(){
         this.actualizado_en = OffsetDateTime.now();
     }
 }

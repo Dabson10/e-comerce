@@ -1,6 +1,8 @@
 package org.github.dabson10.ecomerce.ExceptionGlobal;
 
 import org.github.dabson10.ecomerce.exception.EmailDuplicateException;
+import org.github.dabson10.ecomerce.exception.EmailNotFoundException;
+import org.github.dabson10.ecomerce.exception.IncorrectPasswordException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,7 +15,13 @@ import java.util.Map;
 @ControllerAdvice
 public class ExceptionGlobal {
 
-
+    /**
+     * Manejo de error para la librería Validate, este error captura faltas ya sea
+     * en entidades vacías, nulas o email mal escrito.
+     * @param errores : Este error abarca @NotNull, @NotBlank, @Email, etc. Captura y
+     *                regresa un mensaje en donde no se cumplió el contrato.
+     * @return :Regresa un mapa con 1 o más errores de entrada.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> validVacios(
             MethodArgumentNotValidException errores
@@ -25,10 +33,28 @@ public class ExceptionGlobal {
         return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
     }
 
-
+    //Exception cuando intentan utilizar un correo existente.
     @ExceptionHandler(EmailDuplicateException.class)
     public ResponseEntity<Map<String, String>> correoDuplicado(
             EmailDuplicateException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
+    }
+    //Exception cuando buscan un usuario por correo, pero no existe este.
+    @ExceptionHandler(EmailNotFoundException.class)
+    public ResponseEntity<Map<String, String>> correoNoEncontrado(
+            EmailNotFoundException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
+    }
+    //Exception cuando se ingresa una contraseña incorrecta.
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<Map<String, String>> contraseñaIncorrecta(
+            IncorrectPasswordException error
     ){
         Map<String, String> mapa = new HashMap<>();
         mapa.put("Error tipo: ", error.getMessage());

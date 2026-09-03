@@ -24,4 +24,5 @@ public class UsuarioSimpleDTO {
 //    @NotNull(message = "Ingrese un rol")
     private Rol_Usuario rol;
     private OffsetDateTime creado_en;
+    private OffsetDateTime actualizado_en;
 }
