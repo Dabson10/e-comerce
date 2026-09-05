@@ -1,14 +1,12 @@
 package org.github.dabson10.ecomerce.ExceptionGlobal;
 
-import org.github.dabson10.ecomerce.exception.EmailDuplicateException;
-import org.github.dabson10.ecomerce.exception.EmailNotFoundException;
-import org.github.dabson10.ecomerce.exception.IncorrectPasswordException;
+
+import org.github.dabson10.ecomerce.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,12 +50,29 @@ public class ExceptionGlobal {
         return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
     }
     //Exception cuando se ingresa una contraseña incorrecta.
-    @ExceptionHandler(IncorrectPasswordException.class)
+    @ExceptionHandler(PasswordException.class)
     public ResponseEntity<Map<String, String>> contraseñaIncorrecta(
-            IncorrectPasswordException error
+            PasswordException error
     ){
         Map<String, String> mapa = new HashMap<>();
         mapa.put("Error tipo: ", error.getMessage());
         return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
+    }
+    //Exception cuando una entidad es duplicada o ya está guardada en BD
+    @ExceptionHandler(EntityDuplicateException.class)
+    public ResponseEntity<Map<String, String>> entidadDuplicada(
+            EntityDuplicateException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(NotFoundEntityException.class)
+    public ResponseEntity<Map<String, String>> entidadNoEncontrada(
+            NotFoundEntityException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
     }
 }

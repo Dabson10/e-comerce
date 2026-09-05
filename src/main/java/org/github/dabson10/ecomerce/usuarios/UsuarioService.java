@@ -1,9 +1,7 @@
 package org.github.dabson10.ecomerce.usuarios;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.github.dabson10.ecomerce.exception.EmailDuplicateException;
-import org.github.dabson10.ecomerce.exception.EmailNotFoundException;
-import org.github.dabson10.ecomerce.exception.IncorrectPasswordException;
+import org.github.dabson10.ecomerce.exception.*;
 import org.github.dabson10.ecomerce.usuarios.dto.UsuarioClavesDTO;
 import org.github.dabson10.ecomerce.usuarios.dto.UsuarioCreateDTO;
 import org.github.dabson10.ecomerce.usuarios.dto.UsuarioCredencial;
@@ -44,8 +42,6 @@ public class UsuarioService implements UsuarioServiceImp{
         usuario.setClave(claUt.encode(usuario.getClave()));
         //Ahora pasamos de usuarioCreate a Usuario
         Usuarios usu = usuMa.paraUsuarios(usuario);
-        System.out.println(usu.getCreado_en());
-        System.out.println(usu.getActualizado_en());
         usu = usuRe.save(usu);
         //En esta parte se guardan los datos del usuario
         return usuMa.paraUsuarioSimpleDTO(usu);
@@ -67,7 +63,7 @@ public class UsuarioService implements UsuarioServiceImp{
         //Ahora se realiza una validación de la contraseña del usuario.
         if(!claUt.comparar(credencial.getClave(), usuario.get().getClave())){
             //Si la clave es diferente, regresamos una exception.
-            throw new IncorrectPasswordException("Contraseña incorrecta.");
+            throw new PasswordException("Contraseña incorrecta.");
         }
         //Como la contraseña es correcta entonces regresamos los datos del usuario.
         return usuMa.paraUsuarioSimpleDTO(usuario.get());
@@ -94,12 +90,16 @@ public class UsuarioService implements UsuarioServiceImp{
         Usuarios usuario = usuarioOpt.get();
         //Ahora se tiene que comparar la contraseña antigua con la de BD, para asi cambiar la contraseña.
         if(!claUt.comparar(claves.getClaveAntigua(), usuario.getClave())){
-            throw new IncorrectPasswordException("Para cambiar la contraseña, ingrese su contraseña original.");
+            throw new PasswordException("Para cambiar la contraseña, ingrese su contraseña original.");
+        }
+        if(claUt.comparar(claves.getClaveNueva(), usuario.getClave())){
+            //Si son iguales entonces regresamos una exception
+            throw new PasswordException("Ingrese una contraseña diferente a la anterior.");
         }
         //Después de la validación guardamos en el objeto la nueva clave con hash
         usuario.setClave(claUt.encode(claves.getClaveNueva()));
         //Ahora actualizamos
-//        usuario = usuRe.save(usuario);
+        usuario = usuRe.save(usuario);
         return usuMa.paraUsuarioSimpleDTO(usuario);
     }
 
@@ -107,10 +107,11 @@ public class UsuarioService implements UsuarioServiceImp{
     public void eliminarUsuario(UUID id) {
         //Validamos que exista el usuario mediante su ID
         Usuarios usuario = usuRe.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("No se encontró el usuario."));
+                () -> new NotFoundEntityException("No se encontró el usuario."));
         //Ahora realizamos la eliminación del usuario, mediante un SoftDelete, por lo que ahora.
         if(!usuario.getActivo()){
-            //Si el estado del usuario es false entonces regresamos diciendo que no se puede eliminar un usuario que ya esta eliminado.
+            //Si el estado del usuario es false entonces regresamos diciendo que no se puede eliminar un usuario que ya está eliminado.
+            throw new DeleteException("No se puede eliminar un usuario que ya esta eliminado.");
         }
         //Cambiamos el estado del usuario de true -> false para que el usuario se elimine lógicamente.
         usuario.setActivo(!usuario.getActivo());
