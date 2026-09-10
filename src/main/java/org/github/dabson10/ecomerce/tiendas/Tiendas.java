@@ -24,7 +24,7 @@ public class Tiendas {
     private UUID ID;
     @Column(nullable = false, length = 100, unique = true)
     @NotBlank(message = "Ingrese un nombre de una tienda.")
-    private String nombre_tienda;
+    private String nombreTienda;
     @Column//Puede recibir null y el rango es con TEXT, no tiene un rango específico.
     private String descripcion;
     @Column(nullable = false)

@@ -75,4 +75,13 @@ public class ExceptionGlobal {
         mapa.put("Error tipo: ", error.getMessage());
         return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
     }
+    //
+    @ExceptionHandler(StockException.class)
+    public ResponseEntity<Map<String, String>> errorEnStock(
+            StockException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
+    }
 }

@@ -17,7 +17,7 @@ import java.util.UUID;
 public class TiendaCreateDTO {
     private UUID id;
     @NotBlank(message = "Ingrese un nombre de tienda.")
-    private String nombre_tienda;
+    private String nombreTienda;
     private String descripcion;//La descripción puede tener null, ya que puede o no tener descripción
     private UUID id_usuario;
 }

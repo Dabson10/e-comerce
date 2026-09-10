@@ -39,17 +39,17 @@ public class TiendaService implements TiendaServiceImpl{
          * esto porque no puede existir otra tienda con el mismo nombre, por lo que si hay una tienda con ese
          * nombre no se podrá realizar la creación de esta.
          */
-        Optional<Tiendas> tiendaOpt = tiRe.buscarTiendaPorNombre(tiendaDTO.getNombre_tienda());
-        if(tiendaOpt.isPresent()){
-            //Si se encuentra la tienda entonces regresamos una exception.
-            throw new EntityDuplicateException("Ingrese un nombre de tienda diferente.");
+        if(tiRe.existsByNombreTienda(tiendaDTO.getNombreTienda())){
+            //Si la tienda existe entonces regresamos una exceptión
+            throw new EntityDuplicateException("Nombre de tienda existente. Ingrese uno diferente.");
         }
 
         //El usuario no puede estar asociado en una tienda, pero también no puede existir
         // este usuario, por lo que toca validar su existencia.
-        Usuarios usuario = usuRe.findById(tiendaDTO.getId_usuario())
-                .orElseThrow(() -> new NotFoundEntityException("No se encontró usuario. Ingrese uno existente."));
-
+        if(!usuRe.existsByID(tiendaDTO.getId_usuario())){
+            //Si no existe entonces regresamos una exception
+            throw new NotFoundEntityException("No se encontró usuario. Ingrese uno existente.");
+        }
         //Ahora que sabemos que la tienda no existe toca validar que el usuario
         // que administrara la tienda, no pertenezca a otra.
         if(tiRe.existsByUsuario_ID(tiendaDTO.getId_usuario()) ){
@@ -58,7 +58,8 @@ public class TiendaService implements TiendaServiceImpl{
         }
         //Ahora que se realizaron validación congruente toca guardar los valores de la tienda.
         Tiendas tienda = tiMa.paraTiendas(tiendaDTO);
-        tienda.setUsuario(usuario);
+        //guardamos un objeto tipo Usuario solo con la referencia del ID.
+        tienda.setUsuario(usuRe.getReferenceById(tiendaDTO.getId_usuario()));
         tienda = tiRe.save(tienda);
         System.out.println("El id es: " + tienda.getID());
         return tiMa.paraTiendasSimpleDTO(tienda);

@@ -3,6 +3,10 @@ package org.github.dabson10.ecomerce.productos;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.github.dabson10.ecomerce.categorias.Categorias;
 import org.github.dabson10.ecomerce.descuentos.Descuentos;
 import org.github.dabson10.ecomerce.detalle_ordenes.DetalleOrdenes;
@@ -13,6 +17,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Productos {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -48,4 +55,16 @@ public class Productos {
             joinColumns = @JoinColumn(name = "id_producto", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "id_categoria", nullable = false))
     private List<Categorias> categorias;
+
+    @PrePersist
+    public void cuandoCreas(){
+        this.creado_en = OffsetDateTime.now();
+        this.actualizado_en = OffsetDateTime.now();
+        this.activo = true;
+    }
+
+    @PreUpdate
+    public void cuandoActualizas(){
+        this.actualizado_en = OffsetDateTime.now();
+    }
 }
