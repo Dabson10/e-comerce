@@ -16,7 +16,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +29,17 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
         return true;
     }
 
+    /**
+     * Esta función sirve para encubrir el cuerpo de la petición con datos extra, en este
+     * caso, regresará una acción y el resultado.
+     * @param body the body to be written
+     * @param returnType the return type of the controller method
+     * @param selectedContentType the content type selected through content negotiation
+     * @param selectedConverterType the converter type selected to write to the response
+     * @param request the current request
+     * @param response the current response
+     * @return : El mismo JSON solo que envuelto en parametros nuevos.
+     */
     @Override
     public @Nullable Object beforeBodyWrite(
             @Nullable Object body, MethodParameter returnType,
@@ -40,17 +50,24 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
 
         if(response instanceof ServletServerHttpResponse servletResponse){
             int status = servletResponse.getServletResponse().getStatus();
+
             if(status >= 400){
-                //Si es mayor a un status code a 400 entonces regresamos un TRUE
-                return body;
+                //Si es mayor a un status code a 400 entonces regresamos un FALSE en donde
+                //si recibe un status de error entonces
+                result.put("success", false);
+                result.put("errors", body);
+                return result;
             }
         }
-
+        //Si el cuerpo de la petición es un null entonces regresamos un TURE pero regresamos un null
+        //en el cuerpo de petición.
         if(body == null){
             result.put("success", true);
             result.put("data", null);
             return result;
         }
+        //Ahora si la petición es correcta y no regresa un vacío entonces regresará un
+        //TRUE y los datos del cuerpo.
         result.put("success", true);
         result.put("data", body);
         return result;
@@ -64,7 +81,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
      * @return :Regresa un mapa con 1 o más errores de entrada.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> validVaciosValid(
+    public ResponseEntity<Object> validVaciosValid(
             MethodArgumentNotValidException errores
     ){
         Map<String, String> mapa = new HashMap<>();
@@ -83,7 +100,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
      * @return : Regresa un mapa con 1 o más errores de entrada.
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, String>> validVaciosValidated(
+    public ResponseEntity<Object> validVaciosValidated(
             ConstraintViolationException errores
     ){
         Map<String, String> mapa = new HashMap<>();
@@ -98,7 +115,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
 
     //Exception cuando intentan utilizar un correo existente.
     @ExceptionHandler(EmailDuplicateException.class)
-    public ResponseEntity<Map<String, String>> correoDuplicado(
+    public ResponseEntity<Object> correoDuplicado(
             EmailDuplicateException error
     ){
         Map<String, String> mapa = new HashMap<>();
@@ -107,7 +124,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
     }
     //Exception cuando buscan un usuario por correo, pero no existe este.
     @ExceptionHandler(EmailNotFoundException.class)
-    public ResponseEntity<Map<String, String>> correoNoEncontrado(
+    public ResponseEntity<Object> correoNoEncontrado(
             EmailNotFoundException error
     ){
         Map<String, String> mapa = new HashMap<>();
@@ -116,7 +133,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
     }
     //Exception cuando se ingresa una contraseña incorrecta.
     @ExceptionHandler(PasswordException.class)
-    public ResponseEntity<Map<String, String>> contraseñaIncorrecta(
+    public ResponseEntity<Object> contraseñaIncorrecta(
             PasswordException error
     ){
         Map<String, String> mapa = new HashMap<>();
@@ -125,7 +142,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
     }
     //Exception cuando una entidad es duplicada o ya está guardada en BD
     @ExceptionHandler(EntityDuplicateException.class)
-    public ResponseEntity<Map<String, String>> entidadDuplicada(
+    public ResponseEntity<Object> entidadDuplicada(
             EntityDuplicateException error
     ){
         Map<String, String> mapa = new HashMap<>();
@@ -133,7 +150,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
         return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(NotFoundEntityException.class)
-    public ResponseEntity<Map<String, String>> entidadNoEncontrada(
+    public ResponseEntity<Object> entidadNoEncontrada(
             NotFoundEntityException error
     ){
         Map<String, String> mapa = new HashMap<>();
@@ -142,7 +159,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
     }
     //
     @ExceptionHandler(StockException.class)
-    public ResponseEntity<Map<String, String>> errorEnStock(
+    public ResponseEntity<Object> errorEnStock(
             StockException error
     ){
         Map<String, String> mapa = new HashMap<>();
