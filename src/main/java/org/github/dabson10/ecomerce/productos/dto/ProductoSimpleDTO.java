@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.github.dabson10.ecomerce.categorias.Categorias;
+import org.github.dabson10.ecomerce.categorias.dto.CategoriaSimpleDTO;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter @Setter
@@ -21,6 +24,5 @@ public class ProductoSimpleDTO {
     private OffsetDateTime creado_en;
     private OffsetDateTime actualizado_en;
     private UUID id_tienda;
-
-
+    private List<CategoriaSimpleDTO> categorias;
 }

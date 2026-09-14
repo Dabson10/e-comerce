@@ -166,4 +166,12 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
         mapa.put("Error tipo: ", error.getMessage());
         return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(EmptyCollectionException.class)
+    public ResponseEntity<Object> sinDatosEnColeccion(
+            EmptyCollectionException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
+    }
 }

@@ -7,8 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.github.dabson10.ecomerce.categorias.Categorias;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter @Setter
@@ -27,4 +30,6 @@ public class ProductoCreateDTO {
     private Integer stock;
     @NotNull(message = "Ingrese un ID de tienda.")
     private UUID id_tienda;
+    @NotNull(message = "Ingrese una categoria al producto.")
+    private Set<UUID> id_categorias;
 }
