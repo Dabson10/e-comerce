@@ -4,8 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.github.dabson10.ecomerce.categorias.Categorias;
 import org.github.dabson10.ecomerce.categorias.CategoriasRepository;
 import org.github.dabson10.ecomerce.exception.EmptyCollectionException;
+import org.github.dabson10.ecomerce.exception.EntityException;
 import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
 import org.github.dabson10.ecomerce.exception.StockException;
+import org.github.dabson10.ecomerce.productos.dto.ProductoCategoriaDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCreateDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoSimpleDTO;
 import org.github.dabson10.ecomerce.tiendas.TiendaRepository;
@@ -13,10 +15,7 @@ import org.github.dabson10.ecomerce.tiendas.Tiendas;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -34,7 +33,7 @@ public class ProductoService implements ProductoServiceImpl{
     }
 
     /**
-     * Esta función servirá para crear un priducto y a su vez asignarle una o más categorías.
+     * Esta función servirá para crear un production y a su vez asignarle una o más categorías.
      * Por lo que en esta función se creara tanto el producto como la relación entre producto<->categoria
      * @param productoCre :Valores del producto.
      * @return : Regresará un DTO simple para mostrar los datos ya insertados del producto.
@@ -47,7 +46,7 @@ public class ProductoService implements ProductoServiceImpl{
             //Si la tienda no existe entonces regresamos una exception.
             throw new NotFoundEntityException("No se encontró la tienda con ese ID.");
         }
-        //Empezamos con validaciones con respecto a si la lista de categorias esta vacía.
+        //Empezamos con validaciones con respecto a si la lista de categorias está vacía.
         if(productoCre.getId_categorias().isEmpty()){
             //Si está vacía entonces regresamos una exception.
             throw new NotFoundEntityException("No se ingresaron categorías al producto.");
@@ -74,6 +73,76 @@ public class ProductoService implements ProductoServiceImpl{
     }
 
     /**
+     * Esta función servirá para agregar mas categorias asociadas a un producto existente.
+     * @param productoCategoria :Contendrá el ID del producto y los ID's de las categorías.
+     * @return Regresará el mismo producto solo que con datos formateados.
+     */
+    @Override
+    public ProductoSimpleDTO agregarCategorias(ProductoCategoriaDTO productoCategoria) {
+        //Primero realizamos una validación para saber si el producto existe.
+        Productos producto = proRe.findById(productoCategoria.getIdProducto())
+                .orElseThrow(() -> new NotFoundEntityException("No se encontró el producto."));
+        //Ahora realizaremos las validaciones de las categorias.
+        if(productoCategoria.getIdCategorias().isEmpty()){
+            //Si está vacía entonces regresamos una exception
+            throw new EmptyCollectionException("Si quiere nuevas categorías, favor de agregarlas.");
+        }
+        List<Categorias> categorias = listaFiltrada(productoCategoria.getIdCategorias());
+        //Ahora tenemos que hacer otro filtro idéntico al anterior, ya que realizamos una búsqueda
+        //en BD con los ID's ingresados y eliminamos los que no existen.
+        if(categorias.isEmpty()){
+            throw new EmptyCollectionException("No hay categorías validas para agregar.");
+        }
+        //Obtenemos el tamaño de la lista de categorias de BD antes de agregar los nuevos
+        // para utilizarlo como índice.
+        int indiceCat = producto.getCategorias().size();
+        //Ahora como ya tenemos categorias correctas toca actualizar el producto con las nuevas categorias.
+        producto.setCategorias(fusionarListas(producto.getCategorias(), categorias));
+        producto.getCategorias().forEach(p -> System.out.println("los ID's de las categorías es: " + p.getID()));
+
+        //Ahora tenemos una lista con categorias ya existente y otras que no, pero puede que se eliminaron las nuevas,
+        //porque eran repetidas de las existentes
+        if(indiceCat == producto.getCategorias().size()){
+            //Si el tamaño del índice inicial es igual al tamaño de la lista con los nuevos datos, regresamos una exception
+            throw new EntityException("Agregue categorías diferentes a las existentes.");
+        }
+        proRe.save(producto);
+        return proMa.paraProductoSimpleDTO(producto);
+    }
+
+    /**
+     * Esta función servirá para eliminar categorias asociadas a un producto.
+     * @param productoCategoria :Contendrá el ID del producto y los ID's de las categorías a eliminar.
+     * @return :Regresará el mismo producto solo que con datos formateados.
+     */
+    @Override
+    public ProductoSimpleDTO eliminarCategorias(ProductoCategoriaDTO productoCategoria) {
+        //TIENES UN ERROR EN ESTA FUNCION
+        //Validamos que el producto exista.
+        Productos producto = proRe.findById(productoCategoria.getIdProducto())
+                .orElseThrow(() -> new NotFoundEntityException("No se encontró producto con ese ID."));
+        //Ahora validamos que el producto tenga categorias.
+        if(producto.getCategorias().isEmpty()){
+            //Si está vacía entonces regresamos una exception, porque no podremos borrar si no tiene nada.
+            throw new EmptyCollectionException("El producto no tiene categorías para poder eliminar.");
+        }
+        //Ahora con la lista de ID's que se eliminaran filtraremos en una lista si estos existen.
+        List<Categorias> categorias = listaFiltrada(productoCategoria.getIdCategorias());
+        //Ahora que tenemos la lista de categorias para eliminar toca eliminar las repetidas.
+        categorias = eliminarCategorias(categorias, productoCategoria.getIdCategorias());
+
+        //No podemos dejar que un producto se quede sin categorias, tenemos que tener una validación que
+        //en donde confirme que el producto no puede quedarse sin categorias.
+        if(categorias.isEmpty()){
+            throw new EmptyCollectionException("El producto no se pude quedar sin categorías.");
+        }
+        //Ahora como la lista no está vacía toca actualizar.
+        producto.setCategorias(categorias);
+        producto = proRe.save(producto);
+        return proMa.paraProductoSimpleDTO(producto);
+    }
+
+    /**
      *Esta función servirá para filtrar la colección de Set y buscar categorias existentes en BD,
      * esto es para no agregar valores inexistentes y poder cerrar la puerta si es que los valores no existe.
      * @param id_categorias : Un Set con los ID's de las categorías
@@ -93,11 +162,50 @@ public class ProductoService implements ProductoServiceImpl{
     }
 
     /**
+     * Esta función sirve para combinar en una lista los valores de categorias que estaban registradas en BD y
+     * las nuevas categorias que se quieren agregar, como tal sirve para eliminar duplicados.
+     * @param categoriasDB :Lista con categorías de un producto con valores de BD
+     * @param nuevasCategorias :Lista con categorías que ingreso el usuario.
+     * @return : Regresará una lista con categorías que no se repiten entre ellas.
+     */
+    public List<Categorias> fusionarListas
+            (List<Categorias> categoriasDB,List<Categorias> nuevasCategorias){
+        //Creamos una lista que contendrá las categorias fijas
+        List<Categorias> listaFiltrada = new ArrayList<>();
+
+        //Para evitar ID duplicados creamos un Map y ahi guardaremos los ID's tanto de BD como los nuevos.
+        Map<UUID, Categorias> mapCategorias = new HashMap<>();
+        //Guardamos en un map para que no existan duplicados.
+        //Recorremos la lista con datos de BD y lo formateamos en un Map.
+        categoriasDB.forEach(db-> mapCategorias.put(db.getID(), db));
+        //Recorremos la lista de las nuevas categorias y formateamos en el mismo map
+        nuevasCategorias.forEach(nuevas -> mapCategorias.put(nuevas.getID(), nuevas));
+
+
+        return new ArrayList<>(mapCategorias.values());
+    }
+
+
+    public List<Categorias> eliminarCategorias(List<Categorias> listaDB, Set<UUID> idEliminar){
+        Map<UUID, Categorias> mapCategoria = new HashMap<>();
+        //Ahora recorreremos la listaDB y lo meteremos en el mapa.
+        listaDB.forEach(db -> mapCategoria.put(db.getID(), db));
+        //Ahora como tenemos el ID de llave en el mapa, con el uso del Set, podremos comparar la llave de ambos
+        //si encontramos una coincidencia la eliminamos.
+        idEliminar.forEach(eliminar ->{
+            if(mapCategoria.containsKey(eliminar)){
+                //Si el mapa contiene de llave el ID de para eliminar entonces ahora si lo eliminamos del mapa.
+                mapCategoria.remove(eliminar);
+            }
+        });
+        return new ArrayList<>(mapCategoria.values());
+    }
+
+    /**
      * Esta funcionalidad servirá para eliminar un producto, solo que
      * lo podremos eliminar siempre y cuando este no tenga productos en
      * stock
-     * @param ID : ID del producto
-     * @return : Regresara nada
+     * @param ID : id del producto
      */
     @Override
     public void eliminarProducto(UUID ID) {

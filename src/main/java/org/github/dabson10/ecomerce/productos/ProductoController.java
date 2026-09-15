@@ -1,6 +1,7 @@
 package org.github.dabson10.ecomerce.productos;
 
 import jakarta.validation.Valid;
+import org.github.dabson10.ecomerce.productos.dto.ProductoCategoriaDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCreateDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoSimpleDTO;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,15 @@ public class ProductoController {
         ProductoSimpleDTO product = proSe.crearProductoSimple(producto);
         return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
+
+    @PatchMapping("/categories/update")
+    public ResponseEntity<ProductoSimpleDTO> agregarCategorias(
+            @Valid @RequestBody ProductoCategoriaDTO productoCat
+    ){
+        ProductoSimpleDTO producto = proSe.agregarCategorias(productoCat);
+        return new ResponseEntity<>(producto, HttpStatus.ACCEPTED);
+    }
+
 
     @PatchMapping("/delete/{ID}")
     public ResponseEntity<Map<String, String>> eliminarProducto(

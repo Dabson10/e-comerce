@@ -1,0 +1,7 @@
+package org.github.dabson10.ecomerce.exception;
+
+public class EntityException extends RuntimeException {
+    public EntityException(String message) {
+        super(message);
+    }
+}
