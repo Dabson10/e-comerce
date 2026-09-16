@@ -11,7 +11,6 @@ import org.github.dabson10.ecomerce.productos.dto.ProductoCategoriaDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCreateDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoSimpleDTO;
 import org.github.dabson10.ecomerce.tiendas.TiendaRepository;
-import org.github.dabson10.ecomerce.tiendas.Tiendas;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,6 +72,28 @@ public class ProductoService implements ProductoServiceImpl{
     }
 
     /**
+     * Esta funcionalidad sirve para cambiar el stock de un producto.
+     * @param id :Id del producto
+     * @param stockNuevo : Nueva cantidad a ingresar, obviamente positiva.
+     * @return : Regresará el producto formateado.
+     */
+    @Override
+    public ProductoSimpleDTO cambiarStock(UUID id, int stockNuevo) {
+        //Buscamos el producto y validamos su existencia.
+        Productos producto = proRe.findById(id)
+                .orElseThrow(() -> new NotFoundEntityException("No se encontró producto con ese ID."));
+        //Validamos que la cantidad que se ingresa sea diferente al que ya tiene.
+        if(producto.getStock() == stockNuevo){
+            //Si es igual entonces regresamos una exception y no actualizamos.
+            throw new StockException("Ingrese una cantidad diferente.");
+        }
+        //Ahora realizamos el cambio del stock por el nuevo.
+        producto.setStock(stockNuevo);
+        producto = proRe.save(producto);
+        return proMa.paraProductoSimpleDTO(producto);
+    }
+
+    /**
      * Esta función servirá para agregar mas categorias asociadas a un producto existente.
      * @param productoCategoria :Contendrá el ID del producto y los ID's de las categorías.
      * @return Regresará el mismo producto solo que con datos formateados.
@@ -117,19 +138,24 @@ public class ProductoService implements ProductoServiceImpl{
      */
     @Override
     public ProductoSimpleDTO eliminarCategorias(ProductoCategoriaDTO productoCategoria) {
-        //TIENES UN ERROR EN ESTA FUNCION
         //Validamos que el producto exista.
         Productos producto = proRe.findById(productoCategoria.getIdProducto())
                 .orElseThrow(() -> new NotFoundEntityException("No se encontró producto con ese ID."));
+
+        //Validación para saber si el usuario ingreso categorias para eliminar.
+        if(productoCategoria.getIdCategorias().isEmpty()){
+            //Si la lista de IDs para eliminar están vacíos entonces toca una exception.
+            throw new EmptyCollectionException("Ingrese por lo menos una categoria para poder eliminarla.");
+        }
         //Ahora validamos que el producto tenga categorias.
         if(producto.getCategorias().isEmpty()){
             //Si está vacía entonces regresamos una exception, porque no podremos borrar si no tiene nada.
             throw new EmptyCollectionException("El producto no tiene categorías para poder eliminar.");
         }
-        //Ahora con la lista de ID's que se eliminaran filtraremos en una lista si estos existen.
-        List<Categorias> categorias = listaFiltrada(productoCategoria.getIdCategorias());
         //Ahora que tenemos la lista de categorias para eliminar toca eliminar las repetidas.
-        categorias = eliminarCategorias(categorias, productoCategoria.getIdCategorias());
+        List<Categorias> categorias = producto.getCategorias();
+
+        categorias = eliminarCategoriasFunct(categorias, productoCategoria.getIdCategorias());
 
         //No podemos dejar que un producto se quede sin categorias, tenemos que tener una validación que
         //en donde confirme que el producto no puede quedarse sin categorias.
@@ -185,8 +211,14 @@ public class ProductoService implements ProductoServiceImpl{
         return new ArrayList<>(mapCategorias.values());
     }
 
+    /**
+     * Esta función sirve para eliminar categorias asociadas en un producto existente.
+     * @param listaDB : Lista con las categorías de BD.
+     * @param idEliminar :Lista de ID's que se eliminaran del producto.
+     * @return : Lista que tendrá las categorías.
+     */
+    public List<Categorias> eliminarCategoriasFunct(List<Categorias> listaDB, Set<UUID> idEliminar){
 
-    public List<Categorias> eliminarCategorias(List<Categorias> listaDB, Set<UUID> idEliminar){
         Map<UUID, Categorias> mapCategoria = new HashMap<>();
         //Ahora recorreremos la listaDB y lo meteremos en el mapa.
         listaDB.forEach(db -> mapCategoria.put(db.getID(), db));
