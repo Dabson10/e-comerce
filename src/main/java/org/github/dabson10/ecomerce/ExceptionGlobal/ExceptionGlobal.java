@@ -182,4 +182,12 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
         mapa.put("Error tipo: ", error.getMessage());
         return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(DateException.class)
+    public ResponseEntity<Object> errorDeFechas(
+            DateException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
+    }
 }
