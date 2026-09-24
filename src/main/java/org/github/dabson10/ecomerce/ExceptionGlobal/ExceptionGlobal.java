@@ -190,4 +190,12 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
         mapa.put("Error tipo: ", error.getMessage());
         return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(ValueException.class)
+    public ResponseEntity<Object> valorErroneo(
+            ValueException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.NOT_FOUND);
+    }
 }

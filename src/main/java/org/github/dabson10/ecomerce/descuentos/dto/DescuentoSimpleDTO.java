@@ -15,6 +15,7 @@ public class DescuentoSimpleDTO {
     private UUID ID;
     private short cantidad_descuento;
     private UUID id_producto;
-    private OffsetDateTime fecha_inicio;
+    private OffsetDateTime fecha_fin;
+    private Boolean activo;
     private ProductoSimpleDTO producto;
 }

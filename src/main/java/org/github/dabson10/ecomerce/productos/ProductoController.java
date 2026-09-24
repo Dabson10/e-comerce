@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCategoriaDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCreateDTO;
+import org.github.dabson10.ecomerce.productos.dto.ProductoMostrarDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoSimpleDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,13 @@ public class ProductoController {
         this.proSe = proSe;
     }
 
+    @GetMapping("/get/{ID}")
+    public ResponseEntity<ProductoMostrarDTO> traerUnProducto(
+            @PathVariable(name = "ID") UUID ID
+    ){
+        ProductoMostrarDTO producto = proSe.mostrarProducto(ID);
+        return new ResponseEntity<>(producto, HttpStatus.ACCEPTED);
+    }
     /**
      * Endpoint para crear un producto.
      * @param producto

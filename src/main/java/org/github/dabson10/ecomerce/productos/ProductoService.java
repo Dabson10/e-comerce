@@ -9,6 +9,7 @@ import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
 import org.github.dabson10.ecomerce.exception.StockException;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCategoriaDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCreateDTO;
+import org.github.dabson10.ecomerce.productos.dto.ProductoMostrarDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoSimpleDTO;
 import org.github.dabson10.ecomerce.tiendas.TiendaRepository;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,23 @@ public class ProductoService implements ProductoServiceImpl{
         //Realizamos el guardado en base de datos y guardamos los valores de inserción.
         productos = proRe.save(productos);
         return proMa.paraProductoSimpleDTO(productos);
+    }
+
+    /**
+     * Función para buscar un producto por su ID, este será individual.
+     * @param ID : ID del producto.
+     * @return : Regresará un DTO con datos para mostrar.
+     */
+    @Override
+    public ProductoMostrarDTO mostrarProducto(UUID ID) {
+        //Validamos que el producto exista.
+        if(!proRe.existsById(ID)){
+            //Si no existe entonces regresamos una exception
+            throw new NotFoundEntityException("No se encontró el producto con ese ID.");
+        }
+        //Ahora realizamos la búsqueda del producto.
+        Optional<Productos> producto = proRe.traerProducto(ID);
+        return proMa.paraProductoMostrarDTO(producto.get());
     }
 
     /**

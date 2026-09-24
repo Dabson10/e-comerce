@@ -5,10 +5,9 @@ import org.github.dabson10.ecomerce.descuentos.dto.DescuentoCreateDTO;
 import org.github.dabson10.ecomerce.descuentos.dto.DescuentoSimpleDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/discount")
@@ -28,5 +27,17 @@ public class DescuentoController {
         return new ResponseEntity<>(descuento, HttpStatus.CREATED);
     }
 
+    /**
+     * Controller para eliminar o desactivar un descuento.
+     * @param ID
+     * @return
+     */
+    @PatchMapping("/delete/{ID}")
+    public ResponseEntity<DescuentoSimpleDTO> eliminarDescuento(
+            @PathVariable(name = "ID")UUID ID
+            ){
+        DescuentoSimpleDTO descuento = deSe.desactivarDescuento(ID);
+        return new ResponseEntity<>(descuento, HttpStatus.ACCEPTED);
+    }
 
 }
