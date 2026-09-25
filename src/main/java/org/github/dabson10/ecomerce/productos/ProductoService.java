@@ -7,10 +7,7 @@ import org.github.dabson10.ecomerce.exception.EmptyCollectionException;
 import org.github.dabson10.ecomerce.exception.EntityException;
 import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
 import org.github.dabson10.ecomerce.exception.StockException;
-import org.github.dabson10.ecomerce.productos.dto.ProductoCategoriaDTO;
-import org.github.dabson10.ecomerce.productos.dto.ProductoCreateDTO;
-import org.github.dabson10.ecomerce.productos.dto.ProductoMostrarDTO;
-import org.github.dabson10.ecomerce.productos.dto.ProductoSimpleDTO;
+import org.github.dabson10.ecomerce.productos.dto.*;
 import org.github.dabson10.ecomerce.tiendas.TiendaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +37,7 @@ public class ProductoService implements ProductoServiceImpl{
      */
     @Transactional
     @Override
-    public ProductoSimpleDTO crearProductoSimple(ProductoCreateDTO productoCre) {
+    public ProductoCompletoDTO crearProductoSimple(ProductoCreateDTO productoCre) {
         //Validamos que exista la tienda.
         if(!tiRe.existsTiendasByID(productoCre.getId_tienda())){
             //Si la tienda no existe entonces regresamos una exception.
@@ -80,13 +77,16 @@ public class ProductoService implements ProductoServiceImpl{
     @Override
     public ProductoMostrarDTO mostrarProducto(UUID ID) {
         //Validamos que el producto exista.
+        log.warn("Consulta existente.");
         if(!proRe.existsById(ID)){
             //Si no existe entonces regresamos una exception
             throw new NotFoundEntityException("No se encontró el producto con ese ID.");
         }
         //Ahora realizamos la búsqueda del producto.
-        Optional<Productos> producto = proRe.traerProducto(ID);
-        return proMa.paraProductoMostrarDTO(producto.get());
+        log.warn("Consulta de mostrar.");
+        Optional<ProductoProyeccionDTO> producto = proRe.traerProducto(ID);
+        log.warn("Consulta para mostrar los descuentos.");
+        return null;
     }
 
     /**
@@ -96,7 +96,7 @@ public class ProductoService implements ProductoServiceImpl{
      * @return : Regresará el producto formateado.
      */
     @Override
-    public ProductoSimpleDTO cambiarStock(UUID id, int stockNuevo) {
+    public ProductoCompletoDTO cambiarStock(UUID id, int stockNuevo) {
         //Buscamos el producto y validamos su existencia.
         Productos producto = proRe.findById(id)
                 .orElseThrow(() -> new NotFoundEntityException("No se encontró producto con ese ID."));
@@ -117,12 +117,12 @@ public class ProductoService implements ProductoServiceImpl{
      * @return Regresará el mismo producto solo que con datos formateados.
      */
     @Override
-    public ProductoSimpleDTO agregarCategorias(ProductoCategoriaDTO productoCategoria) {
+    public ProductoCompletoDTO agregarCategorias(ProductoCategoriaDTO productoCategoria) {
         //Primero realizamos una validación para saber si el producto existe.
         Productos producto = proRe.findById(productoCategoria.getIdProducto())
                 .orElseThrow(() -> new NotFoundEntityException("No se encontró el producto."));
         //Ahora realizaremos las validaciones de las categorias.
-        if(productoCategoria.getIdCategorias().isEmpty()){
+        if (productoCategoria.getIdCategorias().isEmpty()) {
             //Si está vacía entonces regresamos una exception
             throw new EmptyCollectionException("Si quiere nuevas categorías, favor de agregarlas.");
         }
@@ -137,11 +137,9 @@ public class ProductoService implements ProductoServiceImpl{
         int indiceCat = producto.getCategorias().size();
         //Ahora como ya tenemos categorias correctas toca actualizar el producto con las nuevas categorias.
         producto.setCategorias(fusionarListas(producto.getCategorias(), categorias));
-        producto.getCategorias().forEach(p -> System.out.println("los ID's de las categorías es: " + p.getID()));
-
         //Ahora tenemos una lista con categorias ya existente y otras que no, pero puede que se eliminaron las nuevas,
         //porque eran repetidas de las existentes
-        if(indiceCat == producto.getCategorias().size()){
+        if (indiceCat == producto.getCategorias().size()) {
             //Si el tamaño del índice inicial es igual al tamaño de la lista con los nuevos datos, regresamos una exception
             throw new EntityException("Agregue categorías diferentes a las existentes.");
         }
@@ -155,7 +153,7 @@ public class ProductoService implements ProductoServiceImpl{
      * @return :Regresará el mismo producto solo que con datos formateados.
      */
     @Override
-    public ProductoSimpleDTO eliminarCategorias(ProductoCategoriaDTO productoCategoria) {
+    public ProductoCompletoDTO eliminarCategorias(ProductoCategoriaDTO productoCategoria) {
         //Validamos que el producto exista.
         Productos producto = proRe.findById(productoCategoria.getIdProducto())
                 .orElseThrow(() -> new NotFoundEntityException("No se encontró producto con ese ID."));

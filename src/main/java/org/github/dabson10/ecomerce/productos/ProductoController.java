@@ -6,7 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCategoriaDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCreateDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoMostrarDTO;
-import org.github.dabson10.ecomerce.productos.dto.ProductoSimpleDTO;
+import org.github.dabson10.ecomerce.productos.dto.ProductoCompletoDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -37,38 +37,38 @@ public class ProductoController {
      * @return : Regresará un objeto con datos fundamentales del producto.
      */
     @PostMapping("/create")
-    public ResponseEntity<ProductoSimpleDTO> crearProducto(
+    public ResponseEntity<ProductoCompletoDTO> crearProducto(
             @RequestBody @Valid ProductoCreateDTO producto
     ){
-        ProductoSimpleDTO product = proSe.crearProductoSimple(producto);
+        ProductoCompletoDTO product = proSe.crearProductoSimple(producto);
         return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 
     @PatchMapping("/categories/update")
-    public ResponseEntity<ProductoSimpleDTO> agregarCategorias(
+    public ResponseEntity<ProductoCompletoDTO> agregarCategorias(
             @Valid @RequestBody ProductoCategoriaDTO productoCat
     ){
-        ProductoSimpleDTO producto = proSe.agregarCategorias(productoCat);
+        ProductoCompletoDTO producto = proSe.agregarCategorias(productoCat);
         return new ResponseEntity<>(producto, HttpStatus.ACCEPTED);
     }
 
     @PatchMapping("/categories/delete")
-    public ResponseEntity<ProductoSimpleDTO> eliminarCategorias(
+    public ResponseEntity<ProductoCompletoDTO> eliminarCategorias(
             @Valid @RequestBody ProductoCategoriaDTO productCat
     ){
-        ProductoSimpleDTO producto = proSe.eliminarCategorias(productCat);
+        ProductoCompletoDTO producto = proSe.eliminarCategorias(productCat);
         return new ResponseEntity<>(producto, HttpStatus.ACCEPTED);
     }
 
 
     @PatchMapping("/{ID}")
-    public ResponseEntity<ProductoSimpleDTO> cambiarStock(
+    public ResponseEntity<ProductoCompletoDTO> cambiarStock(
             @PathVariable @NotNull(message = "Ingrese un ID") UUID ID,
             @RequestParam(name = "stock")
             @PositiveOrZero(message = "Ingrese una cantidad positiva")
             @NotNull(message = "Ingrese una cantidad.") Integer stockNew
     ){
-        ProductoSimpleDTO producto = proSe.cambiarStock(ID, stockNew);
+        ProductoCompletoDTO producto = proSe.cambiarStock(ID, stockNew);
         return new ResponseEntity<>(producto, HttpStatus.ACCEPTED);
     }
 

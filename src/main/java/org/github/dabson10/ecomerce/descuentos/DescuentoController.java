@@ -1,8 +1,8 @@
 package org.github.dabson10.ecomerce.descuentos;
 
 import jakarta.validation.Valid;
+import org.github.dabson10.ecomerce.descuentos.dto.DescuentoCompletoDTO;
 import org.github.dabson10.ecomerce.descuentos.dto.DescuentoCreateDTO;
-import org.github.dabson10.ecomerce.descuentos.dto.DescuentoSimpleDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +21,9 @@ public class DescuentoController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<DescuentoSimpleDTO> crearDescuento(
+    public ResponseEntity<DescuentoCompletoDTO> crearDescuento(
             @Valid @RequestBody DescuentoCreateDTO descuentoDTO){
-        DescuentoSimpleDTO descuento = deSe.crearDescuento(descuentoDTO);
+        DescuentoCompletoDTO descuento = deSe.crearDescuento(descuentoDTO);
         return new ResponseEntity<>(descuento, HttpStatus.CREATED);
     }
 
@@ -33,10 +33,10 @@ public class DescuentoController {
      * @return
      */
     @PatchMapping("/delete/{ID}")
-    public ResponseEntity<DescuentoSimpleDTO> eliminarDescuento(
+    public ResponseEntity<DescuentoCompletoDTO> eliminarDescuento(
             @PathVariable(name = "ID")UUID ID
             ){
-        DescuentoSimpleDTO descuento = deSe.desactivarDescuento(ID);
+        DescuentoCompletoDTO descuento = deSe.desactivarDescuento(ID);
         return new ResponseEntity<>(descuento, HttpStatus.ACCEPTED);
     }
 

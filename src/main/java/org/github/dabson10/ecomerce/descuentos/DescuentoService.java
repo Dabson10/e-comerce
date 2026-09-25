@@ -2,7 +2,7 @@ package org.github.dabson10.ecomerce.descuentos;
 
 import lombok.extern.slf4j.Slf4j;
 import org.github.dabson10.ecomerce.descuentos.dto.DescuentoCreateDTO;
-import org.github.dabson10.ecomerce.descuentos.dto.DescuentoSimpleDTO;
+import org.github.dabson10.ecomerce.descuentos.dto.DescuentoCompletoDTO;
 import org.github.dabson10.ecomerce.exception.DateException;
 import org.github.dabson10.ecomerce.exception.EntityDuplicateException;
 import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
@@ -34,7 +34,7 @@ public class DescuentoService implements DescuentoServiceImpl{
      * @return : Regresará el descuento con un producto simple.
      */
     @Override
-    public DescuentoSimpleDTO crearDescuento(DescuentoCreateDTO descuentoDTO) {
+    public DescuentoCompletoDTO crearDescuento(DescuentoCreateDTO descuentoDTO) {
         //Validamos que el producto exista.
         if(!proRe.existsById(descuentoDTO.getId_producto())){
             //Si no existe el producto entonces regresamos una exception
@@ -62,7 +62,7 @@ public class DescuentoService implements DescuentoServiceImpl{
     }
 
     @Override
-    public DescuentoSimpleDTO desactivarDescuento(UUID ID) {
+    public DescuentoCompletoDTO desactivarDescuento(UUID ID) {
         //Buscamos el descuento mediante el ID.
         Descuentos descuento = deRe.findById(ID)
                 .orElseThrow(() -> new NotFoundEntityException("No se encontró descuento con ese ID"));
