@@ -3,6 +3,9 @@ package org.github.dabson10.ecomerce.productos;
 import lombok.extern.slf4j.Slf4j;
 import org.github.dabson10.ecomerce.categorias.Categorias;
 import org.github.dabson10.ecomerce.categorias.CategoriasRepository;
+import org.github.dabson10.ecomerce.descuentos.DescuentoMapper;
+import org.github.dabson10.ecomerce.descuentos.Descuentos;
+import org.github.dabson10.ecomerce.descuentos.dto.DescuentoSimpleDTO;
 import org.github.dabson10.ecomerce.exception.EmptyCollectionException;
 import org.github.dabson10.ecomerce.exception.EntityException;
 import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
@@ -22,11 +25,14 @@ public class ProductoService implements ProductoServiceImpl{
     private final ProductoRepository proRe;
     private final TiendaRepository tiRe;
     private final CategoriasRepository caRe;
+    private final DescuentoMapper deMa;
 
     public ProductoService(ProductoRepository proRe, TiendaRepository tiRe,
-                           ProductoMapper proMa, CategoriasRepository caRe){
+                           ProductoMapper proMa, CategoriasRepository caRe,
+                           DescuentoMapper deMa){
         this.proRe = proRe; this.tiRe = tiRe;
         this.proMa = proMa; this.caRe = caRe;
+        this.deMa = deMa;
     }
 
     /**
@@ -43,6 +49,9 @@ public class ProductoService implements ProductoServiceImpl{
             //Si la tienda no existe entonces regresamos una exception.
             throw new NotFoundEntityException("No se encontró la tienda con ese ID.");
         }
+        //===========================================================
+        //HAY QUE AGREGAR VALIDACION CUANDO LA TIENDA NO ESTE ACTIVA
+        //===========================================================
         //Empezamos con validaciones con respecto a si la lista de categorias está vacía.
         if(productoCre.getId_categorias().isEmpty()){
             //Si está vacía entonces regresamos una exception.
@@ -77,16 +86,13 @@ public class ProductoService implements ProductoServiceImpl{
     @Override
     public ProductoMostrarDTO mostrarProducto(UUID ID) {
         //Validamos que el producto exista.
-        log.warn("Consulta existente.");
         if(!proRe.existsById(ID)){
             //Si no existe entonces regresamos una exception
             throw new NotFoundEntityException("No se encontró el producto con ese ID.");
         }
         //Ahora realizamos la búsqueda del producto.
-        log.warn("Consulta de mostrar.");
         Optional<ProductoProyeccionDTO> producto = proRe.traerProducto(ID);
-        log.warn("Consulta para mostrar los descuentos.");
-        return null;
+        return proMa.paraProductoMostrarDTO(producto.get());
     }
 
     /**

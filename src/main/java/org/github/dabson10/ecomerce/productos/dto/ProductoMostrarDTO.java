@@ -20,5 +20,5 @@ public class ProductoMostrarDTO {
     private Integer stock;
 //    private BigDecimal precioDescuento;
     private UUID id_tienda;
-    private List<DescuentoSimpleDTO> descuentos;
+    private DescuentoSimpleDTO descuentos;
 }

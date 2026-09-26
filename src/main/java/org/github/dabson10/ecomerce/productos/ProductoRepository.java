@@ -16,7 +16,7 @@ public interface ProductoRepository extends JpaRepository<Productos, UUID> {
     //ARREGLAR ESTA CONSULTA.
     @Query(value = "SELECT\n" +
             "    pr.id AS IdProducto, pr.nombre, pr.descripcion, pr.stock, pr.precio, " +
-            "    pr.id_tienda,\n" +
+            "    pr.id_tienda AS IdTiendagi,\n" +
             "    des.id AS IdDescuento, des.cantidad_descuento AS descuento, " +
             "    des.fecha_inicio AS fechaInicio, des.fecha_fin AS fechaFin, des.activo\n" +
             "FROM productos pr\n" +

@@ -2,7 +2,10 @@ package org.github.dabson10.ecomerce.descuentos;
 
 import org.github.dabson10.ecomerce.descuentos.dto.DescuentoCompletoDTO;
 import org.github.dabson10.ecomerce.descuentos.dto.DescuentoCreateDTO;
+import org.github.dabson10.ecomerce.descuentos.dto.DescuentoSimpleDTO;
+import org.github.dabson10.ecomerce.productos.dto.ProductoProyeccionDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
