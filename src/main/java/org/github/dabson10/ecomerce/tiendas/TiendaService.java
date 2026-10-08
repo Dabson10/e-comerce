@@ -2,13 +2,19 @@ package org.github.dabson10.ecomerce.tiendas;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.github.dabson10.ecomerce.exception.EmptyCollectionException;
 import org.github.dabson10.ecomerce.exception.EntityDuplicateException;
 import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
+import org.github.dabson10.ecomerce.productos.ProductoMapper;
 import org.github.dabson10.ecomerce.tiendas.dto.TiendaCreateDTO;
+import org.github.dabson10.ecomerce.tiendas.dto.TiendaPresentacionDTO;
 import org.github.dabson10.ecomerce.tiendas.dto.TiendaSimpleDTO;
 import org.github.dabson10.ecomerce.usuarios.UsuarioRepository;
 import org.github.dabson10.ecomerce.usuarios.Usuarios;
+import org.github.dabson10.ecomerce.usuarios.proyeccion.TiendaProductosProyeccion;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,10 +25,12 @@ public class TiendaService implements TiendaServiceImpl{
     private final TiendaRepository tiRe;
     private final TiendaMapper tiMa;
     private final UsuarioRepository usuRe;
+    private final ProductoMapper proMa;
+
     public TiendaService(TiendaRepository tiRe, TiendaMapper tiMa,
-                         UsuarioRepository usuRe){
+                         UsuarioRepository usuRe, ProductoMapper proMa){
         this.tiRe = tiRe; this.tiMa = tiMa;
-        this.usuRe = usuRe;
+        this.usuRe = usuRe; this.proMa = proMa;
     }
 
     /**
@@ -65,6 +73,11 @@ public class TiendaService implements TiendaServiceImpl{
         return tiMa.paraTiendasSimpleDTO(tienda);
     }
 
+    /**
+     * Función para mostrar los datos de la tienda mediante su ID.
+     * @param ID : ID de la tienda.
+     * @return : Regresará los datos de la tienda formateados en un DTO.
+     */
     @Override
     public TiendaSimpleDTO mostrarDatosTienda(UUID ID) {
         //Validamos la existencia de la tienda.
@@ -72,6 +85,25 @@ public class TiendaService implements TiendaServiceImpl{
                 .orElseThrow(() -> new NotFoundEntityException("No se encontró tienda con ese ID."));
         //Ahora que tenemos los datos de la tienda, toca plasmarlos en un DTO.
         return tiMa.paraTiendasSimpleDTO(tienda);
+    }
+
+    /**
+     * Esta función sirve para traer las categorías, descuentos y productos existentes en una tienda.
+     * @param ID :
+     * @return :
+     */
+    @Override
+    public TiendaPresentacionDTO mostrarProductosTienda(UUID ID) {
+        List<TiendaProductosProyeccion> proyeccion = tiRe.traerProductosTienda(ID);
+        if(proyeccion.isEmpty()){
+            //Como no se encontró nada regresamos una exceptión.
+            throw new EmptyCollectionException("No se encontrarón productos en la tienda.");
+        }
+        //Como sabemos que hay productos entonces separamos valores, primero tienda y después productos.
+        TiendaPresentacionDTO tiendaPre = tiMa.paraTiendaPresentacion(proyeccion.get(0));
+        //Ahora obtendremos en una lista de productosDTO los datos de los productos obtenidos en la proyección
+        tiendaPre.setProductos(proMa.paraProductoPresentacionDTO(proyeccion));
+        return tiendaPre;
     }
 
     /**

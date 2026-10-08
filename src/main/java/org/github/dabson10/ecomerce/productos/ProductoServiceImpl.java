@@ -7,7 +7,8 @@ import org.github.dabson10.ecomerce.productos.dto.ProductoCompletoDTO;
 
 import java.util.UUID;
 
-public interface ProductoServiceImpl {
+public interface
+ProductoServiceImpl {
     //Función para crear un producto.
     public ProductoCompletoDTO crearProductoSimple(ProductoCreateDTO productoCre);
     /**

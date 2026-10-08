@@ -2,11 +2,14 @@ package org.github.dabson10.ecomerce.tiendas;
 
 import jakarta.validation.Valid;
 import org.github.dabson10.ecomerce.tiendas.dto.TiendaCreateDTO;
+import org.github.dabson10.ecomerce.tiendas.dto.TiendaPresentacionDTO;
 import org.github.dabson10.ecomerce.tiendas.dto.TiendaSimpleDTO;
+import org.github.dabson10.ecomerce.usuarios.proyeccion.TiendaProductosProyeccion;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,6 +29,14 @@ public class TiendasController {
             ){
         TiendaSimpleDTO tienda = tiSe.crearTienda(tiendaD);
         return new ResponseEntity<>(tienda, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/get/{ID}")
+    public ResponseEntity<TiendaPresentacionDTO> productosTienda(
+            @PathVariable UUID ID
+    ){
+        TiendaPresentacionDTO productos = tiSe.mostrarProductosTienda(ID);
+        return new ResponseEntity<>(productos, HttpStatus.ACCEPTED);
     }
 
     @PatchMapping("/status/{ID}")

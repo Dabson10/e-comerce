@@ -44,15 +44,24 @@ public class ProductoService implements ProductoServiceImpl{
     @Transactional
     @Override
     public ProductoCompletoDTO crearProductoSimple(ProductoCreateDTO productoCre) {
-        //Validamos que exista la tienda.
-        if(!tiRe.existsTiendasByID(productoCre.getId_tienda())){
-            //Si la tienda no existe entonces regresamos una exception.
-            throw new NotFoundEntityException("No se encontró la tienda con ese ID.");
+        //Buscamos y obtenemos el estado activo de la tienda.
+        Boolean activo = tiRe.getActivoByID(productoCre.getId_tienda());
+        //Validación por si activo regreso un null, esto puede pasar porque
+        // si no encuentra ID regresará un null,
+        if(activo == null){
+            throw new NotFoundEntityException("No se encontró tienda con ese ID.");
         }
-        //===========================================================
-        //HAY QUE AGREGAR VALIDACION CUANDO LA TIENDA NO ESTE ACTIVA
-        //===========================================================
-        //Empezamos con validaciones con respecto a si la lista de categorias está vacía.
+        //Validación si encuentra y está desactivada.
+        if(!activo){
+            /*
+             * Si se encontró una tienda entonces activo tendrá un valor, si ese valor
+             * es false entonces regresamos una exception, porque una tienda
+             * que está desactivada no puede agregar productos que no venderá.
+             */
+            throw new EntityException("No se pueden agregar productos en una tienda cerrada.");
+        }
+
+        //Empezamos con validaciones con respecto a si la lista de categorías está vacía.
         if(productoCre.getId_categorias().isEmpty()){
             //Si está vacía entonces regresamos una exception.
             throw new NotFoundEntityException("No se ingresaron categorías al producto.");
