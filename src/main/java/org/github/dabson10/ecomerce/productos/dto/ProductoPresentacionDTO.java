@@ -21,6 +21,7 @@ public class ProductoPresentacionDTO {
     private Boolean descuento_status;
     private BigDecimal precio;
     private Integer stock;
+    private BigDecimal precio_descuento;
     private OffsetDateTime fecha_inicio;
     private OffsetDateTime fecha_fin;
 }

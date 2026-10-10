@@ -1,7 +1,6 @@
 package org.github.dabson10.ecomerce.productos;
 
-import org.github.dabson10.ecomerce.productos.dto.ProductoMostrarDTO;
-import org.github.dabson10.ecomerce.productos.dto.ProductoProyeccionDTO;
+import org.github.dabson10.ecomerce.productos.proyeccion.ProductoProyeccion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,7 +25,7 @@ public interface ProductoRepository extends JpaRepository<Productos, UUID> {
             "( des.fecha_fin IS NULL AND des.activo = true ))\n" +
             "ORDER BY fecha_inicio ASC\n" +
             "LIMIT 1", nativeQuery = true)
-    Optional<ProductoProyeccionDTO> traerProducto(@Param("id") UUID id);
+    Optional<ProductoProyeccion> traerProducto(@Param("id") UUID id);
 
     @Query(value = "SELECT EXISTS(\n" +
             "    SELECT 1\n" +

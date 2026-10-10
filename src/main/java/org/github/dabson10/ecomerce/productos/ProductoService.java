@@ -4,17 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.github.dabson10.ecomerce.categorias.Categorias;
 import org.github.dabson10.ecomerce.categorias.CategoriasRepository;
 import org.github.dabson10.ecomerce.descuentos.DescuentoMapper;
-import org.github.dabson10.ecomerce.descuentos.Descuentos;
-import org.github.dabson10.ecomerce.descuentos.dto.DescuentoSimpleDTO;
 import org.github.dabson10.ecomerce.exception.EmptyCollectionException;
 import org.github.dabson10.ecomerce.exception.EntityException;
 import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
 import org.github.dabson10.ecomerce.exception.StockException;
 import org.github.dabson10.ecomerce.productos.dto.*;
+import org.github.dabson10.ecomerce.productos.proyeccion.ProductoProyeccion;
 import org.github.dabson10.ecomerce.tiendas.TiendaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 @Service
@@ -100,8 +101,26 @@ public class ProductoService implements ProductoServiceImpl{
             throw new NotFoundEntityException("No se encontró el producto con ese ID.");
         }
         //Ahora realizamos la búsqueda del producto.
-        Optional<ProductoProyeccionDTO> producto = proRe.traerProducto(ID);
-        return proMa.paraProductoMostrarDTO(producto.get());
+        Optional<ProductoProyeccion> productoOp = proRe.traerProducto(ID);
+        if(productoOp.isEmpty()){
+            //Si no está presente entonces regresamos una exception.
+
+            throw new NotFoundEntityException("No se encontró el producto con ese ID.");
+        }
+        ProductoMostrarDTO producto = proMa.paraProductoMostrarDTO(productoOp.get());
+        //Hacemos un cálculo en el precio con descuento.
+        BigDecimal precio_descuento = null;
+        if(producto.getDescuentos().getCantidad_descuento() == null){
+            //Si el valor es null entonces regresamos le ponemos el valor del precio para no regresar nulos.
+            producto.setPrecio_descuento(producto.getPrecio());
+            //y regresamos el producto con el valor formateado
+            return producto;
+        }
+        //Como si tenemos un valor en cantidad descuento entonces toca aplicar el descuento.
+        BigDecimal descuento = (producto.getPrecio().multiply(BigDecimal.valueOf(producto.getDescuentos().getCantidad_descuento()))).divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+        descuento = producto.getPrecio().subtract(descuento);
+        producto.setPrecio_descuento(descuento);
+        return producto;
     }
 
     /**

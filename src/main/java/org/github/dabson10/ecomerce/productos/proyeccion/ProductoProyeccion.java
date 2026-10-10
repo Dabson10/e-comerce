@@ -1,10 +1,10 @@
-package org.github.dabson10.ecomerce.productos.dto;
+package org.github.dabson10.ecomerce.productos.proyeccion;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-public interface ProductoProyeccionDTO {
+public interface ProductoProyeccion {
     UUID getIdProducto();
     String getNombre();
     String getDescripcion();
