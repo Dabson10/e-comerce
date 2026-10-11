@@ -10,6 +10,7 @@ import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
 import org.github.dabson10.ecomerce.exception.StockException;
 import org.github.dabson10.ecomerce.productos.dto.*;
 import org.github.dabson10.ecomerce.productos.proyeccion.ProductoProyeccion;
+import org.github.dabson10.ecomerce.productos.utilities.Precios;
 import org.github.dabson10.ecomerce.tiendas.TiendaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.*;
 public class ProductoService implements ProductoServiceImpl{
 
     private final ProductoMapper proMa;
+    private final Precios precios;
     private final ProductoRepository proRe;
     private final TiendaRepository tiRe;
     private final CategoriasRepository caRe;
@@ -30,10 +32,10 @@ public class ProductoService implements ProductoServiceImpl{
 
     public ProductoService(ProductoRepository proRe, TiendaRepository tiRe,
                            ProductoMapper proMa, CategoriasRepository caRe,
-                           DescuentoMapper deMa){
+                           DescuentoMapper deMa, Precios precios){
         this.proRe = proRe; this.tiRe = tiRe;
         this.proMa = proMa; this.caRe = caRe;
-        this.deMa = deMa;
+        this.deMa = deMa; this.precios = precios;
     }
 
     /**
@@ -104,21 +106,12 @@ public class ProductoService implements ProductoServiceImpl{
         Optional<ProductoProyeccion> productoOp = proRe.traerProducto(ID);
         if(productoOp.isEmpty()){
             //Si no está presente entonces regresamos una exception.
-
             throw new NotFoundEntityException("No se encontró el producto con ese ID.");
         }
         ProductoMostrarDTO producto = proMa.paraProductoMostrarDTO(productoOp.get());
-        //Hacemos un cálculo en el precio con descuento.
-        BigDecimal precio_descuento = null;
-        if(producto.getDescuentos().getCantidad_descuento() == null){
-            //Si el valor es null entonces regresamos le ponemos el valor del precio para no regresar nulos.
-            producto.setPrecio_descuento(producto.getPrecio());
-            //y regresamos el producto con el valor formateado
-            return producto;
-        }
-        //Como si tenemos un valor en cantidad descuento entonces toca aplicar el descuento.
-        BigDecimal descuento = (producto.getPrecio().multiply(BigDecimal.valueOf(producto.getDescuentos().getCantidad_descuento()))).divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
-        descuento = producto.getPrecio().subtract(descuento);
+        //Ahora realizamos el cálculo del descuento utilizando la función del mapper
+        BigDecimal descuento = Precios.calcularDescuento(producto.getPrecio(), producto.getDescuentos().getCantidad_descuento());
+        //Guardamos el valor.
         producto.setPrecio_descuento(descuento);
         return producto;
     }
