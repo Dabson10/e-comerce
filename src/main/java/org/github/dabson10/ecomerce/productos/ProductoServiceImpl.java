@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface
 ProductoServiceImpl {
     //Función para crear un producto.
-    public ProductoCompletoDTO crearProductoSimple(ProductoCreateDTO productoCre);
+    public ProductoCompletoDTO crearProductoCompleto(ProductoCreateDTO productoCre);
     /**
      * Función para mostrar un producto con su descuento. Como tal esta será lo que se mostrara cuando
      * se busca un producto en específico.

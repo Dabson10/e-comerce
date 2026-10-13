@@ -40,7 +40,7 @@ public class ProductoController {
     public ResponseEntity<ProductoCompletoDTO> crearProducto(
             @RequestBody @Valid ProductoCreateDTO producto
     ){
-        ProductoCompletoDTO product = proSe.crearProductoSimple(producto);
+        ProductoCompletoDTO product = proSe.crearProductoCompleto(producto);
         return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 

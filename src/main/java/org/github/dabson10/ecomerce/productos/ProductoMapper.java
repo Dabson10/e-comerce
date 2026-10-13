@@ -6,8 +6,7 @@ import org.github.dabson10.ecomerce.productos.utilities.Precios;
 import org.github.dabson10.ecomerce.usuarios.proyeccion.TiendaProductosProyeccion;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -19,7 +18,8 @@ import java.util.List;
 public interface ProductoMapper {
 
     Productos paraProductos(ProductoCreateDTO productoCree);
-    ProductoCompletoDTO paraProductoSimpleDTO(Productos productos);
+    @Mapping(source = "tienda.ID", target = "id_tienda")
+    ProductoCompletoDTO paraProductoCompletoDTO(Productos productos);
 
     @Mapping(source = "idTienda", target = "id_tienda")
     @Mapping(source = "idProducto", target = "ID")

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 @Service
@@ -24,18 +23,15 @@ import java.util.*;
 public class ProductoService implements ProductoServiceImpl{
 
     private final ProductoMapper proMa;
-    private final Precios precios;
     private final ProductoRepository proRe;
     private final TiendaRepository tiRe;
     private final CategoriasRepository caRe;
-    private final DescuentoMapper deMa;
 
     public ProductoService(ProductoRepository proRe, TiendaRepository tiRe,
                            ProductoMapper proMa, CategoriasRepository caRe,
                            DescuentoMapper deMa, Precios precios){
         this.proRe = proRe; this.tiRe = tiRe;
         this.proMa = proMa; this.caRe = caRe;
-        this.deMa = deMa; this.precios = precios;
     }
 
     /**
@@ -46,18 +42,19 @@ public class ProductoService implements ProductoServiceImpl{
      */
     @Transactional
     @Override
-    public ProductoCompletoDTO crearProductoSimple(ProductoCreateDTO productoCre) {
-        //Buscamos y obtenemos el estado activo de la tienda.
-        Boolean activo = tiRe.getActivoByID(productoCre.getId_tienda());
-        //Validación por si activo regreso un null, esto puede pasar porque
-        // si no encuentra ID regresará un null,
-        if(activo == null){
+    public ProductoCompletoDTO crearProductoCompleto(ProductoCreateDTO productoCre) {
+        //Validamos que la tienda exista.
+
+        if(!tiRe.existsById(productoCre.getId_tienda())){
             throw new NotFoundEntityException("No se encontró tienda con ese ID.");
         }
+        //Buscamos y obtenemos el estado activo de la tienda.
+        Boolean activo = tiRe.existeTiendaActiva(productoCre.getId_tienda());
+
         //Validación si encuentra y está desactivada.
         if(!activo){
             /*
-             * Si se encontró una tienda entonces activo tendrá un valor, si ese valor
+             * Se obtendrá el valor de activo tendrá un valor, si ese valor
              * es false entonces regresamos una exception, porque una tienda
              * que está desactivada no puede agregar productos que no venderá.
              */
@@ -84,10 +81,11 @@ public class ProductoService implements ProductoServiceImpl{
         Productos productos = proMa.paraProductos(productoCre);
         //Guardamos una referencia de Tiendas y categorias solo con los ID's.
         productos.setTienda(tiRe.getReferenceById(productoCre.getId_tienda()));
+        log.info(String.valueOf(productoCre.getId_tienda()));
         productos.setCategorias(categorias);
         //Realizamos el guardado en base de datos y guardamos los valores de inserción.
         productos = proRe.save(productos);
-        return proMa.paraProductoSimpleDTO(productos);
+        return proMa.paraProductoCompletoDTO(productos);
     }
 
     /**
@@ -135,7 +133,7 @@ public class ProductoService implements ProductoServiceImpl{
         //Ahora realizamos el cambio del stock por el nuevo.
         producto.setStock(stockNuevo);
         producto = proRe.save(producto);
-        return proMa.paraProductoSimpleDTO(producto);
+        return proMa.paraProductoCompletoDTO(producto);
     }
 
     /**
@@ -171,7 +169,7 @@ public class ProductoService implements ProductoServiceImpl{
             throw new EntityException("Agregue categorías diferentes a las existentes.");
         }
         proRe.save(producto);
-        return proMa.paraProductoSimpleDTO(producto);
+        return proMa.paraProductoCompletoDTO(producto);
     }
 
     /**
@@ -208,7 +206,7 @@ public class ProductoService implements ProductoServiceImpl{
         //Ahora como la lista no está vacía toca actualizar.
         producto.setCategorias(categorias);
         producto = proRe.save(producto);
-        return proMa.paraProductoSimpleDTO(producto);
+        return proMa.paraProductoCompletoDTO(producto);
     }
 
     /**

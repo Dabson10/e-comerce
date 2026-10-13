@@ -16,9 +16,13 @@ public interface TiendaRepository extends JpaRepository<Tiendas, UUID> {
     boolean existsByUsuario_ID(UUID usuarioID);
     //Válida que la exista una tienda con ID.
     boolean existsTiendasByID(UUID id);
-    //Válida que no exista una tienda con el mismo nombre
     boolean existsByNombreTienda(String nombre_tienda);
-    Boolean getActivoByID(UUID id);
+    //Válida que exista una tienda activa.
+    @Query(value = "SELECT EXISTS(\n" +
+            "    SELECT 1 FROM Tiendas ti\n" +
+            "             WHERE ti.ID = :ID AND ti.activo = TRUE\n" +
+            ")", nativeQuery = false)
+    Boolean existeTiendaActiva(@Param("ID") UUID ID);
     //Consulta para traer los productos, categorías y descuentos de una tienda.
     @Query(value = "WITH categoriasProductos AS(\n" +
             "    SELECT\n" +
