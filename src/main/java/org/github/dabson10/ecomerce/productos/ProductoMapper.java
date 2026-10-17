@@ -22,14 +22,17 @@ public interface ProductoMapper {
     ProductoCompletoDTO paraProductoCompletoDTO(Productos productos);
 
     @Mapping(source = "idTienda", target = "id_tienda")
+    @Mapping(source = "nombreTienda", target = "nombre_tienda")
     @Mapping(source = "idProducto", target = "ID")
     @Mapping(source = "idDescuento", target = "descuentos.ID")
     @Mapping(source = "descuento", target = "descuentos.cantidad_descuento")
     @Mapping(source = "fechaInicio", target = "descuentos.fecha_inicio")
     @Mapping(source = "fechaFin", target = "descuentos.fecha_fin")
     @Mapping(source = "activo", target = "descuentos.activo")
+    @Mapping(target = "precio_descuento", expression = "java(Precios.calcularDescuento(productoProyeccion.getPrecio(), productoProyeccion.getDescuento()))")
     ProductoMostrarDTO paraProductoMostrarDTO(ProductoProyeccion productoProyeccion);
 
+    List<ProductoMostrarDTO> paraListaProductoMostrarDTO(List<ProductoProyeccion> productoProyeccion);
 
 
     @Mapping(source = "idProducto", target = "id_producto")

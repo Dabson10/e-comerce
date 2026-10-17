@@ -15,10 +15,12 @@ import java.util.UUID;
 public class ProductoMostrarDTO {
     private UUID ID;
     private String nombre;
+    private String categorias;
     private String descripcion;
     private BigDecimal precio;
     private Integer stock;
     private BigDecimal precio_descuento;
     private UUID id_tienda;
+    private String nombre_tienda;
     private DescuentoSimpleDTO descuentos;
 }

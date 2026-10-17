@@ -7,10 +7,12 @@ import java.util.UUID;
 public interface ProductoProyeccion {
     UUID getIdProducto();
     String getNombre();
+    String getCategorias();
     String getDescripcion();
     Integer getStock();
     BigDecimal getPrecio();
     UUID getIdTienda();
+    String getNombreTienda();
     UUID getIdDescuento();
     Short getDescuento(); //Cantidad del descuento.
     Instant getFechaInicio();

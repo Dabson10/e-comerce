@@ -108,10 +108,23 @@ public class ProductoService implements ProductoServiceImpl{
         }
         ProductoMostrarDTO producto = proMa.paraProductoMostrarDTO(productoOp.get());
         //Ahora realizamos el cálculo del descuento utilizando la función del mapper
-        BigDecimal descuento = Precios.calcularDescuento(producto.getPrecio(), producto.getDescuentos().getCantidad_descuento());
+//        BigDecimal descuento = Precios.calcularDescuento(producto.getPrecio(), producto.getDescuentos().getCantidad_descuento());
         //Guardamos el valor.
-        producto.setPrecio_descuento(descuento);
+//        producto.setPrecio_descuento(descuento);
         return producto;
+    }
+
+    @Override
+    public List<ProductoMostrarDTO> productoCategorias(String categoria) {
+
+        List<ProductoProyeccion> productosFiltrados = proRe.filtrarProductosCategoria(("%" + categoria + "%"));
+        if(productosFiltrados.isEmpty()){
+            //Si la lista es vacía entonces regresamos una exception
+            throw new EmptyCollectionException("No se encontraron productos con esa categoria");
+        }
+
+        //Si se encontró algún valor toca mapear de la lista a otra lista pero ahora en un DTO.
+        return proMa.paraListaProductoMostrarDTO(productosFiltrados);
     }
 
     /**

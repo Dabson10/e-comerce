@@ -5,6 +5,7 @@ import org.github.dabson10.ecomerce.productos.dto.ProductoCreateDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoMostrarDTO;
 import org.github.dabson10.ecomerce.productos.dto.ProductoCompletoDTO;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface
@@ -16,6 +17,11 @@ ProductoServiceImpl {
      * se busca un producto en específico.
      */
     public ProductoMostrarDTO mostrarProducto(UUID ID);
+
+    /**
+    * Esta función mostrará productos filtrando por una categoria, por lo que apareceran
+     * solo los productos que coincidan con la categoria.*/
+    public List<ProductoMostrarDTO> productoCategorias(String categoria);
     //Cambiar stock en un producto.
     public ProductoCompletoDTO cambiarStock(UUID id, int stockNuevo);
     //Función para agregar una o mas categorías a un producto existente.

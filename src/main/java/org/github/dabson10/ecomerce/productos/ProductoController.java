@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,6 +31,20 @@ public class ProductoController {
         ProductoMostrarDTO producto = proSe.mostrarProducto(ID);
         return new ResponseEntity<>(producto, HttpStatus.ACCEPTED);
     }
+    //Arregla el error de BRUNO
+    /**
+     *
+     * @param categoria
+     * @return
+     */
+    @GetMapping("/get/list/{cat}")
+    public ResponseEntity<List<ProductoMostrarDTO>> mostrarPorCategorias(
+            @PathVariable(name = "cat") String categoria
+    ){
+        List<ProductoMostrarDTO> productos = proSe.productoCategorias(categoria);
+        return new ResponseEntity<>(productos, HttpStatus.ACCEPTED);
+    }
+
     /**
      * Endpoint para crear un producto.
      * @param producto

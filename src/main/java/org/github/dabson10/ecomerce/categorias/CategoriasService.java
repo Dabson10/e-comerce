@@ -1,7 +1,12 @@
 package org.github.dabson10.ecomerce.categorias;
 
+import jakarta.persistence.EntityExistsException;
+import org.github.dabson10.ecomerce.categorias.dto.CategoriaBasicaDTO;
 import org.github.dabson10.ecomerce.categorias.dto.CategoriaSimpleDTO;
+import org.github.dabson10.ecomerce.exception.EmptyCollectionException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CategoriasService implements CategoriasServiceImpl{
@@ -14,9 +19,24 @@ public class CategoriasService implements CategoriasServiceImpl{
 
     @Override
     public CategoriaSimpleDTO crearCategoria(String nombre) {
+        //Valido que la categoria no exista, referentemente el nombre ingresado.
+        if(caRe.existeCategoria(nombre)){
+            //Si existe entonces regresamos una exception.
+            throw new EntityExistsException("Categoria existente. Ingrese una diferente.");
+        }
         Categorias categorias = new Categorias();
         categorias.setNombre(nombre);
         categorias = caRe.save(categorias);
         return caMa.paraCategoriasSimpleDTO(categorias);
+    }
+
+    @Override
+    public List<CategoriaBasicaDTO> listarCategorias() {
+        List<CategoriaBasicaDTO> categorias = caRe.listarCategorias();
+        if(categorias.isEmpty()){
+            //Si esta vacia soltamos exception
+            throw new EmptyCollectionException("No hay categorias para listar.");
+        }
+        return categorias;
     }
 }
