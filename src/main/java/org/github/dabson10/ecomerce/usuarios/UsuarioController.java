@@ -2,10 +2,7 @@ package org.github.dabson10.ecomerce.usuarios;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import org.github.dabson10.ecomerce.usuarios.dto.UsuarioClavesDTO;
-import org.github.dabson10.ecomerce.usuarios.dto.UsuarioCreateDTO;
-import org.github.dabson10.ecomerce.usuarios.dto.UsuarioCredencial;
-import org.github.dabson10.ecomerce.usuarios.dto.UsuarioSimpleDTO;
+import org.github.dabson10.ecomerce.usuarios.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,10 +41,10 @@ public class UsuarioController {
      * @return : Regresa los datos del usuario.
      */
     @GetMapping("/reed")
-    public ResponseEntity<UsuarioSimpleDTO> logUsuario(
-            @RequestBody UsuarioCredencial credencial
+    public ResponseEntity<Token> logUsuario(
+            @Valid @RequestBody UsuarioCredencial credencial
             ){
-        UsuarioSimpleDTO usuario = usuSe.logUsuario(credencial);
+        Token usuario = usuSe.logUsuario(credencial);
         return new ResponseEntity<>(usuario, HttpStatus.OK);
     }
 

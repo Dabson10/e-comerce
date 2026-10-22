@@ -55,6 +55,7 @@ public class Usuarios {
         this.activo = true;
         this.creado_en = OffsetDateTime.now();
         this.actualizado_en = OffsetDateTime.now();
+        this.correo = correo.trim().toLowerCase();
     }
 
     /**

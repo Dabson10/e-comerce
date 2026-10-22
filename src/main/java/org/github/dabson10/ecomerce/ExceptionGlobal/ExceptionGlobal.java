@@ -131,7 +131,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
     ){
         Map<String, String> mapa = new HashMap<>();
         mapa.put("Error tipo: ", error.getMessage());
-        return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(mapa, HttpStatus.CONFLICT);
     }
     //Exception cuando buscan un usuario por correo, pero no existe este.
     @ExceptionHandler(EmailNotFoundException.class)
@@ -140,7 +140,16 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
     ){
         Map<String, String> mapa = new HashMap<>();
         mapa.put("Error tipo: ", error.getMessage());
-        return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(mapa, HttpStatus.CONFLICT);
+    }
+    //Exception cuando buscan un usuario por correo, pero no existe este.
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    public ResponseEntity<Object> credencialesIncorrectas(
+            CredencialesInvalidasException error
+    ){
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("Error tipo: ", error.getMessage());
+        return new ResponseEntity<>(mapa, HttpStatus.UNAUTHORIZED);
     }
     //Exception cuando se ingresa una contraseña incorrecta.
     @ExceptionHandler(PasswordException.class)
@@ -149,7 +158,7 @@ public class ExceptionGlobal implements ResponseBodyAdvice<Object> {
     ){
         Map<String, String> mapa = new HashMap<>();
         mapa.put("Error tipo: ", error.getMessage());
-        return new ResponseEntity<>(mapa, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(mapa, HttpStatus.CONFLICT);
     }
     //Exception cuando una entidad es duplicada o ya está guardada en BD
     @ExceptionHandler(EntityDuplicateException.class)

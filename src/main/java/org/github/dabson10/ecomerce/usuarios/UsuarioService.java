@@ -1,14 +1,11 @@
 package org.github.dabson10.ecomerce.usuarios;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.github.dabson10.ecomerce.config.JwtUtil;
 import org.github.dabson10.ecomerce.exception.*;
-import org.github.dabson10.ecomerce.usuarios.dto.UsuarioClavesDTO;
-import org.github.dabson10.ecomerce.usuarios.dto.UsuarioCreateDTO;
-import org.github.dabson10.ecomerce.usuarios.dto.UsuarioCredencial;
-import org.github.dabson10.ecomerce.usuarios.dto.UsuarioSimpleDTO;
+import org.github.dabson10.ecomerce.usuarios.dto.*;
 import org.github.dabson10.ecomerce.utility.ClaveUtility;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +31,7 @@ public class UsuarioService implements UsuarioServiceImp{
     @Override
     public UsuarioSimpleDTO CrearUsuario(UsuarioCreateDTO usuario) {
         //Teniendo los datos del usuario tenemos ver si el usuario o en este caso el correo.
-        if(usuRe.existsByCorreo(usuario.getCorreo())){
+        if(usuRe.existsByCorreo(usuario.getCorreo().trim().toLowerCase())){
             //Si el correo existe entonces regresamos una exception
             throw new EmailDuplicateException("Correo existente. Ingrese uno diferente.");
         }
@@ -54,19 +51,21 @@ public class UsuarioService implements UsuarioServiceImp{
      * @return : Regresará los datos del usuario.
      */
     @Override
-    public UsuarioSimpleDTO logUsuario(UsuarioCredencial credencial) {
-        Optional<Usuarios> usuario = usuRe.findByCorreo(credencial.getCorreo());
+    public Token logUsuario(UsuarioCredencial credencial) {
+        Optional<Usuarios> usuario = usuRe.findByCorreo(credencial.getCorreo().trim().toLowerCase());
         if(usuario.isEmpty()){
             //Si el valor es vacío entonces mostramos un mensaje.
-            throw new EmailNotFoundException("No se encontró usuario con ese correo electronico.");
+            throw new CredencialesInvalidasException("Credenciales invalidas.");
         }
         //Ahora se realiza una validación de la contraseña del usuario.
         if(!claUt.comparar(credencial.getClave(), usuario.get().getClave())){
             //Si la clave es diferente, regresamos una exception.
-            throw new PasswordException("Contraseña incorrecta.");
+            throw new CredencialesInvalidasException("Credenciales invalidas.");
         }
+        //Generamos el token cuando el usuario se valide por completo.
+        String tokenGen = JwtUtil.generateToken(usuario.get().getCorreo());
         //Como la contraseña es correcta entonces regresamos los datos del usuario.
-        return usuMa.paraUsuarioSimpleDTO(usuario.get());
+        return new Token(tokenGen, JwtUtil.getExpirationDate(tokenGen).toInstant());
     }
 
     @Override
