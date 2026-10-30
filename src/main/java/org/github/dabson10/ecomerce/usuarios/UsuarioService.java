@@ -6,6 +6,9 @@ import org.github.dabson10.ecomerce.exception.*;
 import org.github.dabson10.ecomerce.usuarios.dto.*;
 import org.github.dabson10.ecomerce.utility.ClaveUtility;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,8 +65,11 @@ public class UsuarioService implements UsuarioServiceImp{
             //Si la clave es diferente, regresamos una exception.
             throw new CredencialesInvalidasException("Credenciales invalidas.");
         }
+        //Debemos pasar un rol del usuario por lo que debemos mandar un Claim personalizado usando Map
+        Map<String, Object> customClaims = new HashMap<>();
+        customClaims.put("rol", ("ROLE_" + usuario.get().getRol()));
         //Generamos el token cuando el usuario se valide por completo.
-        String tokenGen = JwtUtil.generateToken(usuario.get().getCorreo());
+        String tokenGen = JwtUtil.generateToken(usuario.get().getCorreo(), customClaims);
         //Como la contraseña es correcta entonces regresamos los datos del usuario.
         return new Token(tokenGen, JwtUtil.getExpirationDate(tokenGen).toInstant());
     }

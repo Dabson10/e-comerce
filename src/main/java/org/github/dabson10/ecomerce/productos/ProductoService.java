@@ -3,7 +3,6 @@ package org.github.dabson10.ecomerce.productos;
 import lombok.extern.slf4j.Slf4j;
 import org.github.dabson10.ecomerce.categorias.Categorias;
 import org.github.dabson10.ecomerce.categorias.CategoriasRepository;
-import org.github.dabson10.ecomerce.descuentos.DescuentoMapper;
 import org.github.dabson10.ecomerce.exception.EmptyCollectionException;
 import org.github.dabson10.ecomerce.exception.EntityException;
 import org.github.dabson10.ecomerce.exception.NotFoundEntityException;
@@ -12,10 +11,9 @@ import org.github.dabson10.ecomerce.productos.dto.*;
 import org.github.dabson10.ecomerce.productos.proyeccion.ProductoProyeccion;
 import org.github.dabson10.ecomerce.productos.utilities.Precios;
 import org.github.dabson10.ecomerce.tiendas.TiendaRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -29,7 +27,7 @@ public class ProductoService implements ProductoServiceImpl{
 
     public ProductoService(ProductoRepository proRe, TiendaRepository tiRe,
                            ProductoMapper proMa, CategoriasRepository caRe,
-                           DescuentoMapper deMa, Precios precios){
+                           Precios precios){
         this.proRe = proRe; this.tiRe = tiRe;
         this.proMa = proMa; this.caRe = caRe;
     }
@@ -40,7 +38,9 @@ public class ProductoService implements ProductoServiceImpl{
      * @param productoCre :Valores del producto.
      * @return : Regresará un DTO simple para mostrar los datos ya insertados del producto.
      */
+    //Esta función solo puede ser usada por las empresas.
     @Transactional
+    @PreAuthorize("hasAnyRole('Empresa', 'admin')")
     @Override
     public ProductoCompletoDTO crearProductoCompleto(ProductoCreateDTO productoCre) {
         //Validamos que la tienda exista.
@@ -106,6 +106,7 @@ public class ProductoService implements ProductoServiceImpl{
             //Si no está presente entonces regresamos una exception.
             throw new NotFoundEntityException("No se encontró el producto con ese ID.");
         }
+        //REVISA ESTO
         ProductoMostrarDTO producto = proMa.paraProductoMostrarDTO(productoOp.get());
         //Ahora realizamos el cálculo del descuento utilizando la función del mapper
 //        BigDecimal descuento = Precios.calcularDescuento(producto.getPrecio(), producto.getDescuentos().getCantidad_descuento());

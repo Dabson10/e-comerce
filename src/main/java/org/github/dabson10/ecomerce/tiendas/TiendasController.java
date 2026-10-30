@@ -39,6 +39,7 @@ public class TiendasController {
         return new ResponseEntity<>(productos, HttpStatus.ACCEPTED);
     }
 
+    //Este endpoint solo lo puede usar un Admin.
     @PatchMapping("/status/{ID}")
     public ResponseEntity<Map<String, String>> cambiarEstadoTienda(
             @PathVariable UUID ID
