@@ -32,7 +32,7 @@ public class UsuarioService implements UsuarioServiceImp{
      * @return  Regresará el usuario con datos simples.
      */
     @Override
-    public UsuarioSimpleDTO CrearUsuario(UsuarioCreateDTO usuario) {
+    public Token CrearUsuario(UsuarioCreateDTO usuario) {
         //Teniendo los datos del usuario tenemos ver si el usuario o en este caso el correo.
         if(usuRe.existsByCorreo(usuario.getCorreo().trim().toLowerCase())){
             //Si el correo existe entonces regresamos una exception
@@ -42,9 +42,16 @@ public class UsuarioService implements UsuarioServiceImp{
         usuario.setClave(claUt.encode(usuario.getClave()));
         //Ahora pasamos de usuarioCreate a Usuario
         Usuarios usu = usuMa.paraUsuarios(usuario);
+        //Creamos el usuario.
         usu = usuRe.save(usu);
-        //En esta parte se guardan los datos del usuario
-        return usuMa.paraUsuarioSimpleDTO(usu);
+        //Se tiene que obtener el rol del usuario y asignarlo en las claims.
+        Map<String, Object> claimCustom = new HashMap<>();
+        claimCustom.put("rol",("ROLE_" + usuario.getRol()));
+        //Con el claim generamos el token
+        String token = JwtUtil.generateToken(usuario.getCorreo(), claimCustom);
+        //Regresamos el token del usuario.
+        return new Token(token, JwtUtil.getExpirationDate(token).toInstant());
+//        return usuMa.paraUsuarioSimpleDTO(usu);
     }
 
     /**
@@ -72,6 +79,28 @@ public class UsuarioService implements UsuarioServiceImp{
         String tokenGen = JwtUtil.generateToken(usuario.get().getCorreo(), customClaims);
         //Como la contraseña es correcta entonces regresamos los datos del usuario.
         return new Token(tokenGen, JwtUtil.getExpirationDate(tokenGen).toInstant());
+    }
+
+    /**
+     * Función para obtener el usuario y sus datos, mediante el valor de
+     * la cabecera.
+     * @param headerAuth : Cabecera de la petición.
+     * @return : Regresará los datos del usuario.
+     */
+    @Override
+    public UsuarioSimpleDTO datosUsuario(String headerAuth) {
+        //Obtenemos el token de la cabecera de la petición.
+        String token = headerAuth.replace("Bearer ", "");
+        //Obtenemos el subject que sería el correo
+        String correo = JwtUtil.getSubjectFromToken(token);
+        //Buscamos en la base de datos el correo
+        Optional<Usuarios> usuario = usuRe.findByCorreo(correo);
+        if(usuario.isEmpty()){
+            //Si el valor es vacío significa que no se encontró el usuario.
+            throw new NotFoundEntityException("No se encontró usuario con ese correo.");
+        }
+        //Ahora que ya sabemos que existe el usuario, regresamos el usuario mapeado.
+        return usuMa.paraUsuarioSimpleDTO(usuario.get());
     }
 
     @Override

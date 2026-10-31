@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.github.dabson10.ecomerce.usuarios.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -27,11 +28,11 @@ public class UsuarioController {
      * @return : Regresa un DTO con los datos formateados entre ellos: nombre, correo, rol y creado_en.
      */
     @PostMapping("/create")
-    public ResponseEntity<UsuarioSimpleDTO> crearUsuario(
+    public ResponseEntity<Token> crearUsuario(
             @Valid @RequestBody UsuarioCreateDTO usuario
     ){
-        UsuarioSimpleDTO usuDTO = usuSe.CrearUsuario(usuario);
-        return new ResponseEntity<>(usuDTO, HttpStatus.CREATED);
+        Token token = usuSe.CrearUsuario(usuario);
+        return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
 
@@ -46,6 +47,15 @@ public class UsuarioController {
             ){
         Token usuario = usuSe.logUsuario(credencial);
         return new ResponseEntity<>(usuario, HttpStatus.OK);
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ROLE_Admin', 'ROLE_Empresa', 'ROLE_Cliente')")
+    public ResponseEntity<UsuarioSimpleDTO> datosUsuario(
+            @RequestHeader("Authorization") String headerAuth
+    ){
+        UsuarioSimpleDTO usuario = usuSe.datosUsuario(headerAuth);
+        return new ResponseEntity<>(usuario, HttpStatus.ACCEPTED);
     }
 
     @PatchMapping("/{id}")

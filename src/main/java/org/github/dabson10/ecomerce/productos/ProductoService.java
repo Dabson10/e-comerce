@@ -40,7 +40,6 @@ public class ProductoService implements ProductoServiceImpl{
      */
     //Esta función solo puede ser usada por las empresas.
     @Transactional
-    @PreAuthorize("hasAnyRole('Empresa', 'admin')")
     @Override
     public ProductoCompletoDTO crearProductoCompleto(ProductoCreateDTO productoCre) {
         //Validamos que la tienda exista.
@@ -106,13 +105,8 @@ public class ProductoService implements ProductoServiceImpl{
             //Si no está presente entonces regresamos una exception.
             throw new NotFoundEntityException("No se encontró el producto con ese ID.");
         }
-        //REVISA ESTO
-        ProductoMostrarDTO producto = proMa.paraProductoMostrarDTO(productoOp.get());
-        //Ahora realizamos el cálculo del descuento utilizando la función del mapper
-//        BigDecimal descuento = Precios.calcularDescuento(producto.getPrecio(), producto.getDescuentos().getCantidad_descuento());
-        //Guardamos el valor.
-//        producto.setPrecio_descuento(descuento);
-        return producto;
+        //Ahora convertimos el producto a un producto para mostrar en JSON.
+        return proMa.paraProductoMostrarDTO(productoOp.get());
     }
 
     @Override
@@ -243,6 +237,27 @@ public class ProductoService implements ProductoServiceImpl{
     }
 
     /**
+     * Esta funcionalidad servirá para eliminar un producto, solo que
+     * lo podremos eliminar siempre y cuando este no tenga productos en
+     * stock
+     * @param ID : id del producto
+     */
+    @Override
+    public void eliminarProducto(UUID ID) {
+        //Buscaremos el producto.
+        Productos producto = proRe.findById(ID)
+                .orElseThrow(() -> new NotFoundEntityException("No se encontró el producto, ingresa uno correcto."));
+        //Como ya tenemos la validación de la existencia del producto toca saber si su cantidad es mayor
+        if(producto.getStock() > 0){
+            //Si es mayor a cero entonces regresamos una exception.
+            throw new StockException("No puede eliminar el producto aun hay en existencia.");
+        }
+        //Si no regresa exception actualizamos el estado del producto.
+        producto.setActivo(false);
+        proRe.save(producto);
+    }
+
+    /**
      * Esta función sirve para combinar en una lista los valores de categorias que estaban registradas en BD y
      * las nuevas categorias que se quieren agregar, como tal sirve para eliminar duplicados.
      * @param categoriasDB :Lista con categorías de un producto con valores de BD
@@ -250,9 +265,7 @@ public class ProductoService implements ProductoServiceImpl{
      * @return : Regresará una lista con categorías que no se repiten entre ellas.
      */
     public List<Categorias> fusionarListas
-            (List<Categorias> categoriasDB,List<Categorias> nuevasCategorias){
-        //Creamos una lista que contendrá las categorias fijas
-        List<Categorias> listaFiltrada = new ArrayList<>();
+    (List<Categorias> categoriasDB,List<Categorias> nuevasCategorias){
 
         //Para evitar ID duplicados creamos un Map y ahi guardaremos los ID's tanto de BD como los nuevos.
         Map<UUID, Categorias> mapCategorias = new HashMap<>();
@@ -288,24 +301,5 @@ public class ProductoService implements ProductoServiceImpl{
         return new ArrayList<>(mapCategoria.values());
     }
 
-    /**
-     * Esta funcionalidad servirá para eliminar un producto, solo que
-     * lo podremos eliminar siempre y cuando este no tenga productos en
-     * stock
-     * @param ID : id del producto
-     */
-    @Override
-    public void eliminarProducto(UUID ID) {
-        //Buscaremos el producto.
-        Productos producto = proRe.findById(ID)
-                .orElseThrow(() -> new NotFoundEntityException("No se encontró el producto, ingresa uno correcto."));
-        //Como ya tenemos la validación de la existencia del producto toca saber si su cantidad es mayor
-        if(producto.getStock() > 0){
-            //Si es mayor a cero entonces regresamos una exception.
-            throw new StockException("No puede eliminar el producto aun hay en existencia.");
-        }
-        //Si no regresa exception actualizamos el estado del producto.
-        producto.setActivo(false);
-        proRe.save(producto);
-    }
+
 }

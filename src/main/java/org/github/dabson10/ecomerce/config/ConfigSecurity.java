@@ -49,8 +49,8 @@ public class ConfigSecurity {
                 .csrf(c-> c.disable())
                 .authorizeHttpRequests(http ->
                         http.requestMatchers("/users/create","/users/reed").permitAll()
-                                .requestMatchers("/product/**").hasRole("Empresa")
-                                .requestMatchers("/users/").hasRole("Cliente")
+                                .requestMatchers("/product/**").hasAnyRole("Empresa", "Admin")
+                                .requestMatchers("/users/**").hasAnyRole("Cliente", "Empresa", "Admin")
                                 .anyRequest().authenticated() )
                 .sessionManagement( session ->
                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) )
